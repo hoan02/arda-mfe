@@ -1,10 +1,10 @@
 {
-  "name": "@workspace/shell",
+  "name": "@workspace/admin",
   "version": "0.0.0",
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "rsbuild dev --port 3000",
+    "dev": "rsbuild dev --port 3001",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "lint": "eslint . --max-warnings 0"

@@ -1,6 +1,5 @@
 import React from "react";
 import "./App.css";
-import { Button } from "@workspace/ui/components/button";
 
 function App() {
   return (
@@ -22,7 +21,6 @@ function App() {
             <p>Instant hot reload for development</p>
           </div>
         </div>
-        <Button >Click me</Button>
       </header>
     </div>
   );
