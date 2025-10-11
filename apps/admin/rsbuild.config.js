@@ -1,17 +1,12 @@
 import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { pluginModuleFederation } from '@module-federation/rsbuild-plugin';
+import mfConfig from './module-federation.config';
 
 export default defineConfig({
   plugins: [
     pluginReact(),
-    pluginModuleFederation({
-      name: 'admin',
-      exposes: {
-        './export-app': './src/export-app.tsx',
-      },
-      dts: false,
-    }),
+    pluginModuleFederation(mfConfig),
   ],
   source: {
     entry: {

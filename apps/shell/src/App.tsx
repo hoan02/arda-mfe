@@ -5,7 +5,6 @@ import {
   Route,
   Link,
   useLocation,
-  MemoryRouter,
 } from "react-router-dom";
 import { createRemoteAppComponent } from "@module-federation/bridge-react";
 import { loadRemote } from "@module-federation/runtime";
@@ -27,7 +26,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@workspace/ui/components/sidebar";
-import { Button } from "@workspace/ui/components/button";
 import { Home, Settings, Users, BarChart3, ChevronRight } from "lucide-react";
 import "./index.css";
 
@@ -70,14 +68,11 @@ const AdminApp = createRemoteAppComponent({
 function AdminAppWrapper() {
   const location = useLocation();
 
-  // Extract the admin sub-path
-  const adminPath = location.pathname.replace("/admin", "") || "/";
-
   return (
-    <div key={location.pathname}>
+    <div>
       <AdminApp
+        key={location.pathname}
         basename="/admin"
-        currentPath={adminPath}
         props1={"props_value"}
         props2={"another_props_value"}
       />
@@ -283,13 +278,13 @@ function App() {
         <div className="flex min-h-screen w-full">
           <AppSidebar />
           <SidebarInset>
-            <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+            <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 bg-background border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-10">
               <div className="flex items-center gap-2 px-4">
                 <SidebarTrigger className="-ml-1" />
                 <div className="h-4 w-px bg-sidebar-border" />
               </div>
             </header>
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-hidden">
               <div className="h-full">
                 <Routes>
                   <Route path="/" Component={ShellDashboard} />
