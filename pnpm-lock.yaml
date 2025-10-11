@@ -24,7 +24,59 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  apps/admin:
+  apps/admin-app:
+    dependencies:
+      '@module-federation/bridge-react':
+        specifier: ^0.20.0
+        version: 0.20.0(react-dom@19.2.0(react@19.2.0))(react-router-dom@6.30.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+      '@module-federation/runtime':
+        specifier: ^0.20.0
+        version: 0.20.0
+      '@tanstack/react-table':
+        specifier: ^8.21.3
+        version: 8.21.3(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@workspace/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      lucide-react:
+        specifier: ^0.475.0
+        version: 0.475.0(react@19.2.0)
+      react:
+        specifier: ^19.1.1
+        version: 19.2.0
+      react-dom:
+        specifier: ^19.1.1
+        version: 19.2.0(react@19.2.0)
+      react-router-dom:
+        specifier: ^6.28.0
+        version: 6.30.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+    devDependencies:
+      '@module-federation/rsbuild-plugin':
+        specifier: ^0.20.0
+        version: 0.20.0(@rsbuild/core@1.5.16)(@rspack/core@1.5.8(@swc/helpers@0.5.17))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(webpack@5.102.1)
+      '@rsbuild/core':
+        specifier: ^1.4.0
+        version: 1.5.16
+      '@rsbuild/plugin-react':
+        specifier: ^1.4.0
+        version: 1.4.1(@rsbuild/core@1.5.16)
+      '@types/react':
+        specifier: ^19.1.9
+        version: 19.2.2
+      '@types/react-dom':
+        specifier: ^19.1.7
+        version: 19.2.1(@types/react@19.2.2)
+      '@workspace/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@workspace/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
+
+  apps/data-governance:
     dependencies:
       '@module-federation/bridge-react':
         specifier: ^0.20.0

@@ -1,0 +1,32 @@
+{
+  "name": "@workspace/data-governance",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "rsbuild dev --port 3002",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "@module-federation/bridge-react": "^0.20.0",
+    "@module-federation/runtime": "^0.20.0",
+    "@tanstack/react-table": "^8.21.3",
+    "@workspace/ui": "workspace:*",
+    "lucide-react": "^0.475.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "@module-federation/rsbuild-plugin": "^0.20.0",
+    "@rsbuild/core": "^1.4.0",
+    "@rsbuild/plugin-react": "^1.4.0",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "typescript": "^5.9.2"
+  }
+}

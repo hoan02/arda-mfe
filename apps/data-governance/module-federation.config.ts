@@ -1,11 +1,11 @@
 import { createModuleFederationConfig } from '@module-federation/rsbuild-plugin';
 
 const mfConfig = createModuleFederationConfig({
-  name: 'shell',
-  remotes: {
-    'admin': 'admin@http://localhost:3001/mf-manifest.json',
-    'dataGovernance': 'dataGovernance@http://localhost:3002/mf-manifest.json',
+  name: 'dataGovernance',
+  exposes: {
+    './export-app': './src/export-app.tsx',
   },
+  filename: 'remoteEntry.js',
   dts: false,
   shared: {
     react: {

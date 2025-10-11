@@ -1,10 +1,9 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "./index.css";
-import { AdminDashboard } from "./components/AdminDashboard";
-import { UsersManagement } from "./components/UsersManagement";
-import { Settings } from "./components/Settings";
 import { Toaster } from "@workspace/ui/components/sonner";
+import { AdminDashboard } from "./features/dashboard/AdminDashboard";
+import { UsersManagement } from "./features/users/UsersManagement";
+import { Settings } from "./features/settings/Settings";
+import "./index.css";
 
 function App() {
   return (

@@ -18,11 +18,6 @@ const mfConfig = createModuleFederationConfig({
       requiredVersion: '^19.1.1',
       eager: true,
     },
-    'react-router-dom': {
-      singleton: true,
-      requiredVersion: '^6.28.0',
-      eager: true,
-    },
     'lucide-react': {
       singleton: true,
       requiredVersion: '^0.475.0',

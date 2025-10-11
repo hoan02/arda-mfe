@@ -8,5 +8,9 @@ init({
       name: 'admin',
       entry: 'http://localhost:3001/mf-manifest.json',
     },
+    {
+      name: 'dataGovernance',
+      entry: 'http://localhost:3002/mf-manifest.json',
+    },
   ],
 });

@@ -1,8 +1,13 @@
 import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
+import { pluginModuleFederation } from '@module-federation/rsbuild-plugin';
+import mfConfig from './module-federation.config';
 
 export default defineConfig({
-  plugins: [pluginReact()],
+  plugins: [
+    pluginReact(),
+    pluginModuleFederation(mfConfig),
+  ],
   source: {
     entry: {
       index: './src/index.tsx',
@@ -12,8 +17,8 @@ export default defineConfig({
     template: './index.html',
   },
   server: {
-    port: 3001,
-    open: true,
+    port: 3002,
+    open: false,
   },
   tools: {
     rspack: {
