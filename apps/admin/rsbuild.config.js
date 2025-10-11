@@ -6,9 +6,9 @@ export default defineConfig({
   plugins: [
     pluginReact(),
     pluginModuleFederation({
-      name: 'shell',
-      remotes: {
-        admin: 'admin@http://localhost:3001/mf-manifest.json',
+      name: 'admin',
+      exposes: {
+        './export-app': './src/export-app.tsx',
       },
       dts: false,
     }),
@@ -22,8 +22,8 @@ export default defineConfig({
     template: './index.html',
   },
   server: {
-    port: 3000,
-    open: true,
+    port: 3001,
+    open: false,
   },
   tools: {
     rspack: {

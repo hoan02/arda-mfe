@@ -10,13 +10,18 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
+    "@module-federation/bridge-react": "^0.20.0",
+    "@module-federation/runtime": "^0.20.0",
+    "@workspace/ui": "workspace:*",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "@workspace/ui": "workspace:*"
+    "react-router-dom": "^6.28.0",
+    "lucide-react": "^0.475.0"
   },
   "devDependencies": {
-    "@rsbuild/core": "^0.6.0",
-    "@rsbuild/plugin-react": "^0.6.0",
+    "@rsbuild/core": "^1.4.0",
+    "@rsbuild/plugin-react": "^1.4.0",
+    "@module-federation/rsbuild-plugin": "^0.20.0",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@workspace/eslint-config": "workspace:*",
