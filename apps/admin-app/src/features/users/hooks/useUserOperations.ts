@@ -1,9 +1,8 @@
 import { useState, useCallback } from "react";
 import toast from "react-hot-toast";
-import { EntityFormData } from "@workspace/ui/components/entity-detail-dialog";
+import { EntityFormData } from "../components/EntityDetailDialog";
 import { createToastMessages } from "@workspace/shared/lib/api-utils";
 import { userApiClient } from "../utils/user-api-client";
-import { UserDto } from "../../../types/api";
 
 const toastMessages = createToastMessages("User");
 

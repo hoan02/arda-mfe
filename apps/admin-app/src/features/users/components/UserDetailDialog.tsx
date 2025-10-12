@@ -4,7 +4,7 @@ import {
   EntityDetailDialog,
   EntityFormData,
   EntityData,
-} from "@workspace/ui/components/entity-detail-dialog";
+} from "./EntityDetailDialog";
 import { userFields, userInitialData } from "../config/user-fields";
 
 interface UserDetailDialogProps {

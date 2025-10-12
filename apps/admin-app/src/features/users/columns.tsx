@@ -102,9 +102,10 @@ export function createUsersColumns({
       cell: ({ row }) => (
         <div className="text-sm text-gray-500">#{row.getValue("id")}</div>
       ),
+      enableSorting: true,
     },
     {
-      accessorKey: "user",
+      accessorKey: "firstName",
       header: "User",
       cell: ({ row }) => {
         const user = row.original;
@@ -118,6 +119,9 @@ export function createUsersColumns({
           </div>
         );
       },
+      enableSorting: true,
+      enableHiding: true,
+      size: 500,
     },
     {
       accessorKey: "phoneNumber",
@@ -126,6 +130,7 @@ export function createUsersColumns({
         const phone = row.getValue("phoneNumber") as string;
         return <div className="text-sm text-gray-500">{phone || "N/A"}</div>;
       },
+      enableSorting: true,
     },
     {
       accessorKey: "status",
@@ -135,6 +140,7 @@ export function createUsersColumns({
           {row.getValue("status")}
         </Badge>
       ),
+      enableSorting: true,
       filterFn: (row, id, value) => {
         return value.includes(row.getValue(id));
       },
@@ -147,6 +153,7 @@ export function createUsersColumns({
           {row.getValue("role")}
         </Badge>
       ),
+      enableSorting: true,
       filterFn: (row, id, value) => {
         return value.includes(row.getValue(id));
       },
@@ -161,6 +168,7 @@ export function createUsersColumns({
           {row.getValue("emailVerified") ? "Verified" : "Unverified"}
         </Badge>
       ),
+      enableSorting: true,
       filterFn: (row, id, value) => {
         return value.includes(row.getValue(id));
       },
@@ -173,6 +181,7 @@ export function createUsersColumns({
           {new Date(row.getValue("createdAt")).toLocaleDateString()}
         </div>
       ),
+      enableSorting: true,
     },
     {
       accessorKey: "updatedAt",
@@ -185,6 +194,7 @@ export function createUsersColumns({
           </div>
         );
       },
+      enableSorting: true,
     },
     {
       accessorKey: "lastLoginAt",
@@ -197,6 +207,7 @@ export function createUsersColumns({
           </div>
         );
       },
+      enableSorting: true,
     },
     {
       id: "actions",
