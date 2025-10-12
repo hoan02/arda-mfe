@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -69,7 +69,7 @@ export function DataTablePagination<TData>({
                   disabled={!table.getCanPreviousPage()}
                   onClick={() => table.previousPage()}
                 >
-                  <ChevronLeftIcon className="h-4 w-4" />
+                  <ChevronLeft className="h-4 w-4" />
                 </Button>
               </PaginationItem>
               <PaginationItem>
@@ -80,7 +80,7 @@ export function DataTablePagination<TData>({
                   disabled={!table.getCanNextPage()}
                   onClick={() => table.nextPage()}
                 >
-                  <ChevronRightIcon className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" />
                 </Button>
               </PaginationItem>
             </PaginationContent>
