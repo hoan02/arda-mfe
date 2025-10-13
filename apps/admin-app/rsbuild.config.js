@@ -20,11 +20,39 @@ export default defineConfig({
     port: 3001,
     open: false,
   },
+  dev: {
+    lazyCompilation: false,
+    client: {
+      overlay: false,
+    },
+  },
+  builtins: {
+    react: {
+      refresh: true,
+    },
+  },
+  experiments: {
+    rspackFuture: {
+      disableApplyEntryLazily: true,
+    },
+  },
   tools: {
     rspack: {
       resolve: {
         alias: {
           '@': './src',
+        },
+      },
+      optimization: {
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            lucide: {
+              test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
+              name: 'lucide',
+              chunks: 'all',
+            },
+          },
         },
       },
     },
