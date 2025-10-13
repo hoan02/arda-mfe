@@ -18,11 +18,12 @@ import {
 } from "@workspace/ui/components/sidebar";
 import { Settings, ChevronRight } from "lucide-react";
 import { useNavigation } from "../../hooks/useNavigation";
-import { menuItems } from "../../lib/menuItems";
+import { useMenus } from "../../hooks/useMenus";
 
 export function AppSidebar() {
   const location = useLocation();
   const { expandedItems, toggleExpanded } = useNavigation();
+  const { data: dynamicMenus, loading, error } = useMenus();
 
   return (
     <Sidebar>
@@ -45,7 +46,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {(dynamicMenus || []).map((item) => (
                 <SidebarMenuItem key={item.id}>
                   {item.children ? (
                     <>

@@ -7,6 +7,17 @@ export interface MenuItem {
   children?: MenuItem[];
 }
 
+// API menu type returned by backend
+export interface ApiMenuItem {
+  id: number;
+  label: string;
+  icon?: string;
+  path?: string;
+  orderIndex?: number;
+  type?: string;
+  children?: ApiMenuItem[];
+}
+
 export interface RemoteAppProps {
   basename: string;
   props1?: string;

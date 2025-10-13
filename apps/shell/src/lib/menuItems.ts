@@ -1,4 +1,4 @@
-import { MenuItem } from '../types';
+import { MenuItem, ApiMenuItem } from '../types';
 import { Home, Settings, Users, BarChart3, Database, FileText, Layers, Tag } from 'lucide-react';
 
 export const menuItems: MenuItem[] = [
@@ -73,3 +73,41 @@ export const menuItems: MenuItem[] = [
     ],
   },
 ];
+
+// Map icon name from API to React component
+export function getIconComponent(name?: string) {
+  switch ((name || '').toLowerCase()) {
+    case 'home':
+      return Home;
+    case 'settings':
+      return Settings;
+    case 'users':
+      return Users;
+    case 'barchart3':
+    case 'bar-chart-3':
+    case 'chart':
+      return BarChart3;
+    case 'database':
+      return Database;
+    case 'filetext':
+    case 'file-text':
+      return FileText;
+    case 'layers':
+      return Layers;
+    case 'tag':
+      return Tag;
+    default:
+      return FileText;
+  }
+}
+
+export function mapApiMenuToClient(api: ApiMenuItem): MenuItem {
+  const Icon = getIconComponent(api.icon);
+  return {
+    id: String(api.id),
+    label: api.label,
+    icon: Icon,
+    path: api.path || '#',
+    children: api.children?.map(mapApiMenuToClient),
+  };
+}
