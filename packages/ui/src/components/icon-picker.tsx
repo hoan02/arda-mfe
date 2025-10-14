@@ -12,6 +12,7 @@ import { Input } from "@workspace/ui/components/input";
 import { cn } from "@workspace/ui/lib/utils";
 import { LucideProps, LucideIcon } from "lucide-react";
 import { DynamicIcon, IconName } from "lucide-react/dynamic";
+import { iconNames } from "lucide-react/dynamic";
 import {
   Tooltip,
   TooltipContent,
@@ -23,6 +24,13 @@ import { useVirtualizer, VirtualItem } from "@tanstack/react-virtual";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import Fuse from "fuse.js";
 import { useDebounceValue } from "usehooks-ts";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@workspace/ui/components/dialog";
 
 export type IconData = (typeof iconsData)[number];
 
@@ -43,6 +51,8 @@ interface IconPickerProps
   iconsList?: IconData[];
   categorized?: boolean;
   modal?: boolean;
+  dialog?: boolean;
+  columns?: number; // number of icon columns when dialog=true (min 5, max 10)
 }
 
 const IconRenderer = React.memo(({ name }: { name: IconName }) => {
@@ -75,7 +85,8 @@ const useIconsData = () => {
 
       const { iconsData } = await import("../constants/icons-data");
       if (isMounted) {
-        setIcons(iconsData);
+        const supported = new Set(iconNames as readonly string[]);
+        setIcons(iconsData.filter((i) => supported.has(i.name)));
         setIsLoading(false);
       }
     };
@@ -109,6 +120,8 @@ const IconPicker = React.forwardRef<
       iconsList,
       categorized = true,
       modal = false,
+      dialog = false,
+      columns,
       ...props
     },
     ref
@@ -171,6 +184,11 @@ const IconPicker = React.forwardRef<
         .sort((a, b) => a.name.localeCompare(b.name));
     }, [filteredIcons, categorized, search]);
 
+    const columnsClamped = useMemo(() => {
+      const base = columns ?? (dialog ? 8 : 5);
+      return Math.min(15, Math.max(5, base));
+    }, [columns, dialog]);
+
     const virtualItems = useMemo(() => {
       const items: Array<{
         type: "category" | "row";
@@ -183,8 +201,9 @@ const IconPicker = React.forwardRef<
         items.push({ type: "category", categoryIndex });
 
         const rows = [];
-        for (let i = 0; i < category.icons.length; i += 5) {
-          rows.push(category.icons.slice(i, i + 5));
+        const colsForLayout = dialog ? columnsClamped : 5;
+        for (let i = 0; i < category.icons.length; i += colsForLayout) {
+          rows.push(category.icons.slice(i, i + colsForLayout));
         }
 
         rows.forEach((rowIcons, rowIndex) => {
@@ -198,7 +217,7 @@ const IconPicker = React.forwardRef<
       });
 
       return items;
-    }, [categorizedIcons]);
+    }, [categorizedIcons, dialog, columnsClamped]);
 
     const categoryIndices = useMemo(() => {
       const indices: Record<string, number> = {};
@@ -223,6 +242,15 @@ const IconPicker = React.forwardRef<
       gap: 10,
       overscan: 5,
     });
+
+    const dialogContentWidthPx = useMemo(() => {
+      if (!dialog) return undefined as number | undefined;
+      const iconCellPx = 56; // approximate button size
+      const gapPx = 8; // gap-2
+      const paddingPx = 32; // p-4 on content
+      const cols = columnsClamped;
+      return cols * iconCellPx + (cols - 1) * gapPx + paddingPx;
+    }, [dialog, columnsClamped]);
 
     const handleValueChange = useCallback(
       (icon: IconName) => {
@@ -378,7 +406,12 @@ const IconPicker = React.forwardRef<
                 data-index={virtualItem.index}
                 style={itemStyle}
               >
-                <div className="grid grid-cols-5 gap-2 w-full">
+                <div
+                  className="grid gap-2 w-full"
+                  style={{
+                    gridTemplateColumns: `repeat(${dialog ? columnsClamped : 5}, minmax(0, 1fr))`,
+                  }}
+                >
                   {item.icons!.map(renderIcon)}
                 </div>
               </div>
@@ -417,7 +450,54 @@ const IconPicker = React.forwardRef<
       }
     }, [isPopoverVisible, virtualizer]);
 
-    return (
+    return dialog ? (
+      <Dialog open={open ?? isOpen} onOpenChange={handleOpenChange}>
+        <DialogTrigger ref={ref} asChild {...props}>
+          {children || (
+            <Button variant="outline">
+              {value || selectedIcon ? (
+                <>
+                  <Icon name={(value || selectedIcon)!} />{" "}
+                  {value || selectedIcon}
+                </>
+              ) : (
+                triggerPlaceholder
+              )}
+            </Button>
+          )}
+        </DialogTrigger>
+        <DialogContent
+          className={"p-4 sm:max-w-[min(96vw,1600px)]"}
+          style={{
+            width: dialogContentWidthPx,
+            maxWidth: "min(96vw, 1600px)",
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle>Pick an icon</DialogTitle>
+          </DialogHeader>
+          {searchable && (
+            <Input
+              placeholder={searchPlaceholder}
+              onChange={handleSearchChange}
+              className="mb-3"
+            />
+          )}
+          {categorized && search.trim() === "" && (
+            <div className="flex flex-row gap-2 mt-1 overflow-x-auto pb-2">
+              {categoryButtons}
+            </div>
+          )}
+          <div
+            ref={parentRef}
+            className="overflow-auto"
+            style={{ maxHeight: "70vh", scrollbarWidth: "thin" }}
+          >
+            {isLoading ? <IconsColumnSkeleton /> : renderVirtualContent()}
+          </div>
+        </DialogContent>
+      </Dialog>
+    ) : (
       <Popover
         open={open ?? isOpen}
         onOpenChange={handleOpenChange}

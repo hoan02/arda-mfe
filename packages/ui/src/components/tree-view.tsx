@@ -10,6 +10,7 @@ import {
   Search,
   Info,
   X,
+  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -18,16 +19,16 @@ import {
   CollapsibleContent,
 } from "@workspace/ui/components/collapsible";
 import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@workspace/ui/components/context-menu";
-import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@workspace/ui/components/hover-card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu";
 import { Badge } from "@workspace/ui/components/badge";
 import { Input } from "@workspace/ui/components/input";
 import { cn } from "@workspace/ui/lib/utils";
@@ -48,7 +49,7 @@ export interface TreeViewMenuItem {
   id: string;
   label: string;
   icon?: React.ReactNode;
-  action: (items: TreeViewItem[]) => void;
+  action: (item: TreeViewItem) => void;
 }
 
 export interface TreeViewProps {
@@ -69,8 +70,8 @@ export interface TreeViewProps {
   onAction?: (action: string, items: TreeViewItem[]) => void;
   onCheckChange?: (item: TreeViewItem, checked: boolean) => void;
   iconMap?: TreeViewIconMap;
-  menuItems?: TreeViewMenuItem[];
   disableClickAwayClear?: boolean;
+  menuItems?: TreeViewMenuItem[];
 }
 
 interface TreeItemProps {
@@ -88,8 +89,8 @@ interface TreeItemProps {
   showAccessRights?: boolean;
   itemMap: Map<string, TreeViewItem>;
   iconMap?: TreeViewIconMap;
-  menuItems?: TreeViewMenuItem[];
   getSelectedItems: () => TreeViewItem[];
+  menuItems?: TreeViewMenuItem[];
 }
 
 // Helper function to build a map of all items by ID
@@ -163,8 +164,8 @@ function TreeItem({
   showAccessRights,
   itemMap,
   iconMap = defaultIconMap,
-  menuItems,
   getSelectedItems,
+  menuItems,
 }: TreeItemProps): React.JSX.Element {
   const isOpen = expandedIds.has(item.id);
   const isSelected = selectedIds.has(item.id);
@@ -358,249 +359,286 @@ function TreeItem({
     (item.children && !isOpen && getSelectedChildrenCount(item)) || null;
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger>
-        <div>
-          <div
-            ref={itemRef}
-            data-tree-item
-            data-id={item.id}
-            data-depth={depth}
-            data-folder-closed={item.children && !isOpen}
-            className={`select-none cursor-pointer ${
-              isSelected ? `bg-orange-100 ${selectionStyle}` : "text-foreground"
-            } px-1`}
-            style={{ paddingLeft: `${depth * 20}px` }}
-            onClick={handleClick}
-          >
-            <div className="flex items-center h-8">
-              {item.children ? (
-                <div className="flex items-center gap-2 flex-1 group">
-                  <Collapsible
-                    open={isOpen}
-                    onOpenChange={(open) => onToggleExpand(item.id, open)}
-                  >
-                    <CollapsibleTrigger
-                      asChild
-                      onClick={(e) => e.stopPropagation()}
+    <div>
+      <div
+        ref={itemRef}
+        data-tree-item
+        data-id={item.id}
+        data-depth={depth}
+        data-folder-closed={item.children && !isOpen}
+        className={`select-none cursor-pointer ${
+          isSelected ? `bg-orange-100 ${selectionStyle}` : "text-foreground"
+        } px-1`}
+        style={{ paddingLeft: `${depth * 20}px` }}
+        onClick={handleClick}
+      >
+        <div className="flex items-center h-8">
+          {item.children ? (
+            <div className="flex items-center gap-2 flex-1 group">
+              <Collapsible
+                open={isOpen}
+                onOpenChange={(open) => onToggleExpand(item.id, open)}
+              >
+                <CollapsibleTrigger
+                  asChild
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Button variant="ghost" size="icon" className="h-6 w-6">
+                    <motion.div
+                      initial={false}
+                      animate={{ rotate: isOpen ? 90 : 0 }}
+                      transition={{ duration: 0.1 }}
                     >
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <motion.div
-                          initial={false}
-                          animate={{ rotate: isOpen ? 90 : 0 }}
-                          transition={{ duration: 0.1 }}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </motion.div>
-                      </Button>
-                    </CollapsibleTrigger>
-                  </Collapsible>
-                  {showAccessRights && (
-                    <div
-                      className="relative flex items-center justify-center w-4 h-4 cursor-pointer hover:opacity-80"
-                      onClick={handleAccessClick}
-                    >
-                      {getCheckState(item, itemMap) === "checked" && (
-                        <div className="w-4 h-4 border rounded bg-primary border-primary flex items-center justify-center">
-                          <svg
-                            className="h-3 w-3 text-primary-foreground"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                      {getCheckState(item, itemMap) === "unchecked" && (
-                        <div className="w-4 h-4 border rounded border-input" />
-                      )}
-                      {getCheckState(item, itemMap) === "indeterminate" && (
-                        <div className="w-4 h-4 border rounded bg-primary border-primary flex items-center justify-center">
-                          <div className="h-0.5 w-2 bg-primary-foreground" />
-                        </div>
-                      )}
+                      <ChevronRight className="h-4 w-4" />
+                    </motion.div>
+                  </Button>
+                </CollapsibleTrigger>
+              </Collapsible>
+              {showAccessRights && (
+                <div
+                  className="relative flex items-center justify-center w-4 h-4 cursor-pointer hover:opacity-80"
+                  onClick={handleAccessClick}
+                >
+                  {getCheckState(item, itemMap) === "checked" && (
+                    <div className="w-4 h-4 border rounded bg-primary border-primary flex items-center justify-center">
+                      <svg
+                        className="h-3 w-3 text-primary-foreground"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
                     </div>
                   )}
-                  {renderIcon()}
-                  <span className="flex-1">{item.name}</span>
-                  {selectedCount !== null && selectedCount > 0 && (
-                    <Badge
-                      variant="secondary"
-                      className="mr-2 bg-blue-100 hover:bg-blue-100"
-                    >
-                      {selectedCount} selected
-                    </Badge>
+                  {getCheckState(item, itemMap) === "unchecked" && (
+                    <div className="w-4 h-4 border rounded border-input" />
                   )}
-                  <HoverCard>
-                    <HoverCardTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 group-hover:opacity-100 opacity-0 items-center justify-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Info className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-80">
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-semibold">{item.name}</h4>
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          <div>
-                            <span className="font-medium">Type:</span>{" "}
-                            {item.type.charAt(0).toUpperCase() +
-                              item.type.slice(1).replace("_", " ")}
-                          </div>
-                          <div>
-                            <span className="font-medium">ID:</span> {item.id}
-                          </div>
-                          <div>
-                            <span className="font-medium">Location:</span>{" "}
-                            {getItemPath(item, allItems)}
-                          </div>
-                          <div>
-                            <span className="font-medium">Items:</span>{" "}
-                            {item.children?.length || 0} direct items
-                          </div>
-                        </div>
-                      </div>
-                    </HoverCardContent>
-                  </HoverCard>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 flex-1 pl-8 group">
-                  {showAccessRights && (
-                    <div
-                      className="relative flex items-center justify-center w-4 h-4 cursor-pointer hover:opacity-80"
-                      onClick={handleAccessClick}
-                    >
-                      {item.checked ? (
-                        <div className="w-4 h-4 border rounded bg-primary border-primary flex items-center justify-center">
-                          <svg
-                            className="h-3 w-3 text-primary-foreground"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        </div>
-                      ) : (
-                        <div className="w-4 h-4 border rounded border-input" />
-                      )}
+                  {getCheckState(item, itemMap) === "indeterminate" && (
+                    <div className="w-4 h-4 border rounded bg-primary border-primary flex items-center justify-center">
+                      <div className="h-0.5 w-2 bg-primary-foreground" />
                     </div>
                   )}
-                  {renderIcon()}
-                  <span className="flex-1">{item.name}</span>
-                  <HoverCard>
-                    <HoverCardTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 group-hover:opacity-100 opacity-0 items-center justify-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Info className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-80">
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-semibold">{item.name}</h4>
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          <div>
-                            <span className="font-medium">Type:</span>{" "}
-                            {item.type.charAt(0).toUpperCase() +
-                              item.type.slice(1).replace("_", " ")}
-                          </div>
-                          <div>
-                            <span className="font-medium">ID:</span> {item.id}
-                          </div>
-                          <div>
-                            <span className="font-medium">Location:</span>{" "}
-                            {getItemPath(item, allItems)}
-                          </div>
-                        </div>
-                      </div>
-                    </HoverCardContent>
-                  </HoverCard>
                 </div>
               )}
-            </div>
-          </div>
-
-          {item.children && (
-            <Collapsible
-              open={isOpen}
-              onOpenChange={(open) => onToggleExpand(item.id, open)}
-            >
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <CollapsibleContent forceMount asChild>
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.05 }}
+              {renderIcon()}
+              <span className="flex-1">{item.name}</span>
+              {selectedCount !== null && selectedCount > 0 && (
+                <Badge
+                  variant="secondary"
+                  className="mr-2 bg-blue-100 hover:bg-blue-100"
+                >
+                  {selectedCount} selected
+                </Badge>
+              )}
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 group-hover:opacity-100 opacity-0 items-center justify-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-80">
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold">{item.name}</h4>
+                    <div className="text-sm text-muted-foreground space-y-1">
+                      <div>
+                        <span className="font-medium">Type:</span>{" "}
+                        {item.type.charAt(0).toUpperCase() +
+                          item.type.slice(1).replace("_", " ")}
+                      </div>
+                      <div>
+                        <span className="font-medium">ID:</span> {item.id}
+                      </div>
+                      <div>
+                        <span className="font-medium">Location:</span>{" "}
+                        {getItemPath(item, allItems)}
+                      </div>
+                      <div>
+                        <span className="font-medium">Items:</span>{" "}
+                        {item.children?.length || 0} direct items
+                      </div>
+                    </div>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+              {menuItems && menuItems.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 group-hover:opacity-100 opacity-0 items-center justify-center"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {item.children?.map((child) => (
-                        <TreeItem
-                          key={child.id}
-                          item={child}
-                          depth={depth + 1}
-                          selectedIds={selectedIds}
-                          lastSelectedId={lastSelectedId}
-                          onSelect={onSelect}
-                          expandedIds={expandedIds}
-                          onToggleExpand={onToggleExpand}
-                          getIcon={getIcon}
-                          onAction={onAction}
-                          onAccessChange={onAccessChange}
-                          allItems={allItems}
-                          showAccessRights={showAccessRights}
-                          itemMap={itemMap}
-                          iconMap={iconMap}
-                          menuItems={menuItems}
-                          getSelectedItems={getSelectedItems}
+                      <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {menuItems.map((menuItem) => (
+                      <DropdownMenuItem
+                        key={menuItem.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          menuItem.action(item);
+                        }}
+                      >
+                        {menuItem.icon && (
+                          <span className="mr-2 h-4 w-4">{menuItem.icon}</span>
+                        )}
+                        {menuItem.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 flex-1 pl-8 group">
+              {showAccessRights && (
+                <div
+                  className="relative flex items-center justify-center w-4 h-4 cursor-pointer hover:opacity-80"
+                  onClick={handleAccessClick}
+                >
+                  {item.checked ? (
+                    <div className="w-4 h-4 border rounded bg-primary border-primary flex items-center justify-center">
+                      <svg
+                        className="h-3 w-3 text-primary-foreground"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
                         />
-                      ))}
-                    </motion.div>
-                  </CollapsibleContent>
-                )}
-              </AnimatePresence>
-            </Collapsible>
+                      </svg>
+                    </div>
+                  ) : (
+                    <div className="w-4 h-4 border rounded border-input" />
+                  )}
+                </div>
+              )}
+              {renderIcon()}
+              <span className="flex-1">{item.name}</span>
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 group-hover:opacity-100 opacity-0 items-center justify-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-80">
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold">{item.name}</h4>
+                    <div className="text-sm text-muted-foreground space-y-1">
+                      <div>
+                        <span className="font-medium">Type:</span>{" "}
+                        {item.type.charAt(0).toUpperCase() +
+                          item.type.slice(1).replace("_", " ")}
+                      </div>
+                      <div>
+                        <span className="font-medium">ID:</span> {item.id}
+                      </div>
+                      <div>
+                        <span className="font-medium">Location:</span>{" "}
+                        {getItemPath(item, allItems)}
+                      </div>
+                    </div>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+              {menuItems && menuItems.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 group-hover:opacity-100 opacity-0 items-center justify-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {menuItems.map((menuItem) => (
+                      <DropdownMenuItem
+                        key={menuItem.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          menuItem.action(item);
+                        }}
+                      >
+                        {menuItem.icon && (
+                          <span className="mr-2 h-4 w-4">{menuItem.icon}</span>
+                        )}
+                        {menuItem.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           )}
         </div>
-      </ContextMenuTrigger>
-      <ContextMenuContent className="w-64">
-        {menuItems?.map((menuItem) => (
-          <ContextMenuItem
-            key={menuItem.id}
-            onClick={() => {
-              const items = selectedIds.has(item.id)
-                ? getSelectedItems()
-                : [item];
-              menuItem.action(items);
-            }}
-          >
-            {menuItem.icon && (
-              <span className="mr-2 h-4 w-4">{menuItem.icon}</span>
+      </div>
+
+      {item.children && (
+        <Collapsible
+          open={isOpen}
+          onOpenChange={(open) => onToggleExpand(item.id, open)}
+        >
+          <AnimatePresence initial={false}>
+            {isOpen && (
+              <CollapsibleContent forceMount asChild>
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.05 }}
+                >
+                  {item.children?.map((child) => (
+                    <TreeItem
+                      key={child.id}
+                      item={child}
+                      depth={depth + 1}
+                      selectedIds={selectedIds}
+                      lastSelectedId={lastSelectedId}
+                      onSelect={onSelect}
+                      expandedIds={expandedIds}
+                      onToggleExpand={onToggleExpand}
+                      getIcon={getIcon}
+                      onAction={onAction}
+                      onAccessChange={onAccessChange}
+                      allItems={allItems}
+                      showAccessRights={showAccessRights}
+                      itemMap={itemMap}
+                      iconMap={iconMap}
+                      getSelectedItems={getSelectedItems}
+                    />
+                  ))}
+                </motion.div>
+              </CollapsibleContent>
             )}
-            {menuItem.label}
-          </ContextMenuItem>
-        ))}
-      </ContextMenuContent>
-    </ContextMenu>
+          </AnimatePresence>
+        </Collapsible>
+      )}
+    </div>
   );
 }
 
@@ -620,8 +658,8 @@ export default function TreeView({
   onSelectionChange,
   onAction,
   onCheckChange,
-  menuItems,
   disableClickAwayClear = false,
+  menuItems,
 }: TreeViewProps) {
   const [currentMousePos, setCurrentMousePos] = useState<number>(0);
   const [dragStart, setDragStart] = useState<number | null>(null);
@@ -899,7 +937,7 @@ export default function TreeView({
     <div className="flex gap-4">
       <div
         ref={treeRef}
-        className="bg-background p-6 rounded-xl border max-w-2xl space-y-4 w-[600px] relative shadow-lg"
+        className="bg-background p-2 rounded-xl border w-full space-y-4 relative shadow-lg"
       >
         <AnimatePresence mode="wait">
           {selectedIds.size > 0 ? (
@@ -1002,7 +1040,7 @@ export default function TreeView({
 
         <div
           ref={dragRef}
-          className={cn("rounded-lg bg-card relative select-none", className)}
+          className={cn("rounded-lg bg-card relative select-none space-y-1", className)}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
         >
@@ -1036,8 +1074,8 @@ export default function TreeView({
               showAccessRights={showCheckboxes}
               itemMap={itemMap}
               iconMap={iconMap}
-              menuItems={menuItems}
               getSelectedItems={getSelectedItems}
+              menuItems={menuItems}
             />
           ))}
         </div>
