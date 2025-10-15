@@ -7,12 +7,20 @@ import {
   Edit,
   Trash2,
   Plus,
+  ArrowUpDown,
 } from "lucide-react";
 import TreeView, { TreeViewItem } from "@workspace/ui/components/tree-view";
 import { useQuery } from "@tanstack/react-query";
 import { menuApiClient } from "../utils/menu-api";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { DynamicIcon, IconName, iconNames } from "lucide-react/dynamic";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@workspace/ui/components/dialog";
+import { MenuDetails } from "./MenuDetails";
 
 // Map backend menu tree (id, label, icon, type, children) to TreeViewItem[]
 function mapMenusToTreeViewItems(items: any[] | undefined): TreeViewItem[] {
@@ -43,19 +51,7 @@ const customIconMap: Record<string, React.ReactNode> = {
 
 // Menu items sẽ được tạo trong component với các callback
 
-export function MenuTreeManager({
-  onSelectMenu,
-  onViewMenu,
-  onEditMenu,
-  onDeleteMenu,
-  onAddSubMenu,
-}: {
-  onSelectMenu?: (menu: any | null) => void;
-  onViewMenu?: (menu: any) => void;
-  onEditMenu?: (menu: any) => void;
-  onDeleteMenu?: (menu: any) => void;
-  onAddSubMenu?: (menu: any) => void;
-}) {
+export function MenuTreeManager() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["menus-tree"],
     queryFn: () => menuApiClient.getMenusTree(),
@@ -78,8 +74,37 @@ export function MenuTreeManager({
     return map;
   }, [data]);
 
-  const handleCheckChange = (item: TreeViewItem, checked: boolean) => {
-    // no-op for now
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMenu, setDialogMenu] = useState<any>(null);
+  const [dialogMode, setDialogMode] = useState<"view" | "edit">("view");
+
+  const handleViewMenu = (menu: any) => {
+    setDialogMenu(menu);
+    setDialogMode("view");
+    setDialogOpen(true);
+  };
+
+  const handleEditMenu = (menu: any) => {
+    setDialogMenu(menu);
+    setDialogMode("edit");
+    setDialogOpen(true);
+  };
+
+  const handleDeleteMenu = (menu: any) => {
+    if (confirm(`Xóa menu "${menu.label}"?`)) {
+      // TODO: Implement delete API
+      console.log("Delete menu:", menu);
+    }
+  };
+
+  const handleAddSubMenu = (menu: any) => {
+    // TODO: Implement add submenu flow
+    console.log("Add submenu to:", menu);
+  };
+
+  const handleReorder = (menu: any) => {
+    // TODO: Implement reorder flow
+    console.log("Reorder menu:", menu);
   };
 
   const getIcon = (item: TreeViewItem) => {
@@ -92,58 +117,60 @@ export function MenuTreeManager({
   };
 
   const menuItems = useMemo(() => {
-    const items = [];
+    const items = [] as any[];
 
-    if (onViewMenu) {
-      items.push({
-        id: "view",
-        label: "Xem",
-        icon: <Eye className="h-4 w-4 text-blue-500" />,
-        action: (item: TreeViewItem) => {
-          const menu = idToMenu.get(item.id);
-          if (menu) onViewMenu(menu);
-        },
-      });
-    }
+    items.push({
+      id: "view",
+      label: "Xem",
+      icon: <Eye className="h-4 w-4 text-blue-500" />,
+      action: (item: TreeViewItem) => {
+        const menu = idToMenu.get(item.id);
+        if (menu) handleViewMenu(menu);
+      },
+    });
 
-    if (onEditMenu) {
-      items.push({
-        id: "edit",
-        label: "Sửa",
-        icon: <Edit className="h-4 w-4 text-purple-500" />,
-        action: (item: TreeViewItem) => {
-          const menu = idToMenu.get(item.id);
-          if (menu) onEditMenu(menu);
-        },
-      });
-    }
+    items.push({
+      id: "edit",
+      label: "Sửa",
+      icon: <Edit className="h-4 w-4 text-purple-500" />,
+      action: (item: TreeViewItem) => {
+        const menu = idToMenu.get(item.id);
+        if (menu) handleEditMenu(menu);
+      },
+    });
 
-    if (onAddSubMenu) {
-      items.push({
-        id: "add-submenu",
-        label: "Thêm menu con",
-        icon: <Plus className="h-4 w-4 text-green-500" />,
-        action: (item: TreeViewItem) => {
-          const menu = idToMenu.get(item.id);
-          if (menu) onAddSubMenu(menu);
-        },
-      });
-    }
+    items.push({
+      id: "add-submenu",
+      label: "Thêm menu con",
+      icon: <Plus className="h-4 w-4 text-green-500" />,
+      action: (item: TreeViewItem) => {
+        const menu = idToMenu.get(item.id);
+        if (menu) handleAddSubMenu(menu);
+      },
+    });
 
-    if (onDeleteMenu) {
-      items.push({
-        id: "delete",
-        label: "Xóa",
-        icon: <Trash2 className="h-4 w-4 text-red-500" />,
-        action: (item: TreeViewItem) => {
-          const menu = idToMenu.get(item.id);
-          if (menu) onDeleteMenu(menu);
-        },
-      });
-    }
+    items.push({
+      id: "reorder",
+      label: "Thay đổi vị trí",
+      icon: <ArrowUpDown className="h-4 w-4 text-amber-600" />,
+      action: (item: TreeViewItem) => {
+        const menu = idToMenu.get(item.id);
+        if (menu) handleReorder(menu);
+      },
+    });
+
+    items.push({
+      id: "delete",
+      label: "Xóa",
+      icon: <Trash2 className="h-4 w-4 text-red-500" />,
+      action: (item: TreeViewItem) => {
+        const menu = idToMenu.get(item.id);
+        if (menu) handleDeleteMenu(menu);
+      },
+    });
 
     return items;
-  }, [onViewMenu, onEditMenu, onDeleteMenu, onAddSubMenu, idToMenu]);
+  }, [idToMenu]);
 
   if (isLoading)
     return (
@@ -153,22 +180,33 @@ export function MenuTreeManager({
     return <div className="p-2 text-sm text-red-600">Failed to load menus</div>;
 
   return (
-    <TreeView
-      data={treeData}
-      title="Tree View Demo"
-      showCheckboxes={false}
-      iconMap={customIconMap}
-      getIcon={getIcon}
-      onCheckChange={handleCheckChange}
-      disableClickAwayClear
-      menuItems={menuItems}
-      onSelectionChange={(selected) => {
-        if (!onSelectMenu) return;
-        const first = selected?.[0];
-        if (!first) return onSelectMenu(null);
-        const raw = idToMenu.get(String(first.id)) || null;
-        onSelectMenu(raw);
-      }}
-    />
+    <>
+      <TreeView
+        data={treeData}
+        title="Tree View Demo"
+        showCheckboxes={false}
+        iconMap={customIconMap}
+        getIcon={getIcon}
+        disableClickAwayClear
+        menuItems={menuItems}
+      />
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="min-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {dialogMode === "view" ? "Xem chi tiết menu" : "Chỉnh sửa menu"}
+            </DialogTitle>
+          </DialogHeader>
+          {dialogMenu && (
+            <MenuDetails
+              menu={dialogMenu}
+              mode={dialogMode}
+              onClose={() => setDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
