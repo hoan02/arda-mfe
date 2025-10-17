@@ -17,15 +17,19 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { menuApiClient } from "../utils/menu-api";
 
+export type MenuDetailsProps = {
+  menu: any | null;
+  mode?: "view" | "edit";
+  onClose?: () => void;
+  parentMenu?: any | null;
+};
+
 export function MenuDetails({
   menu,
   mode = "view",
   onClose,
-}: {
-  menu: any | null;
-  mode?: "view" | "edit";
-  onClose?: () => void;
-}) {
+  parentMenu,
+}: MenuDetailsProps) {
   const queryClient = useQueryClient();
   const DEFAULT_ICON_COLOR = "#111827"; // neutral-900
   const [isEditing, setIsEditing] = useState(false);
@@ -40,21 +44,26 @@ export function MenuDetails({
 
   useEffect(() => {
     if (menu) {
+      const nextOrderIndex = parentMenu
+        ? (Array.isArray(parentMenu.children)
+            ? parentMenu.children.length
+            : 0) + 1
+        : undefined;
+
       setForm({
         label: menu.label ?? "",
         path: menu.path ?? "",
         icon: (menu.icon as IconName) ?? undefined,
         iconColor: (menu.iconColor as string) ?? DEFAULT_ICON_COLOR,
-        orderIndex: menu.orderIndex ?? 0,
+        orderIndex: menu.id ? (menu.orderIndex ?? 0) : (nextOrderIndex ?? 0),
         type: menu.type ?? "",
       });
       setIsEditing(mode === "edit");
     }
-  }, [menu, mode]);
+  }, [menu, mode, parentMenu]);
 
   const updateMutation = useMutation({
     mutationFn: async () => {
-      if (!menu?.id) return;
       // validate required fields
       if (!form.label || !form.label.trim()) {
         toast.error("Vui lòng nhập Nhãn");
@@ -72,7 +81,16 @@ export function MenuDetails({
         type: form.type,
       };
       payload.iconColor = form.iconColor || DEFAULT_ICON_COLOR;
-      await menuApiClient.updateMenu(menu.id, payload);
+      if (menu?.id) {
+        await menuApiClient.updateMenu(menu.id, payload);
+      } else {
+        // create new menu (submenu when parentMenu provided)
+        const createdId = await menuApiClient.createMenu({
+          ...payload,
+          parentId: parentMenu?.id ?? null,
+        } as any);
+        // no need to use createdId for now; list will refresh
+      }
     },
     onSuccess: () => {
       toast.success("Đã lưu thay đổi");
@@ -110,10 +128,17 @@ export function MenuDetails({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="text-muted-foreground text-sm w-[120px]">
-          Nhãn
+      {parentMenu ? (
+        <div className="flex items-center gap-3">
+          <div className="text-muted-foreground text-sm w-[120px]">
+            Menu cha
+          </div>
+          <Input value={parentMenu.label || ""} disabled className="flex-1" />
         </div>
+      ) : null}
+
+      <div className="flex items-center gap-3">
+        <div className="text-muted-foreground text-sm w-[120px]">Nhãn</div>
         <Input
           value={form.label}
           disabled={!isEditing}
@@ -123,9 +148,7 @@ export function MenuDetails({
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="text-muted-foreground text-sm w-[120px]">
-          Đường dẫn
-        </div>
+        <div className="text-muted-foreground text-sm w-[120px]">Đường dẫn</div>
         <Input
           value={form.path || ""}
           disabled={!isEditing}
@@ -286,24 +309,17 @@ export function MenuDetails({
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="text-muted-foreground text-sm w-[120px]">
-          Thứ tự
-        </div>
+        <div className="text-muted-foreground text-sm w-[120px]">Thứ tự</div>
         <Input
           type="number"
           value={Number(form.orderIndex ?? 0)}
-          disabled={!isEditing}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, orderIndex: Number(e.target.value) }))
-          }
+          disabled
           className="flex-1"
         />
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="text-muted-foreground text-sm w-[120px]">
-          Loại
-        </div>
+        <div className="text-muted-foreground text-sm w-[120px]">Loại</div>
         <Input
           value={form.type || ""}
           disabled={!isEditing}

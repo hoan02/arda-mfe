@@ -2,6 +2,7 @@ import { BaseApiClient } from "@workspace/shared/lib/base-api-client";
 
 export interface ApiMenuItem {
   id: number;
+  parentId?: number | null;
   label: string;
   icon?: string;
   path?: string;
