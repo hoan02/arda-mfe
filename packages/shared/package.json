@@ -9,10 +9,10 @@
   "dependencies": {
     "@module-federation/bridge-react": "^0.20.0",
     "@tanstack/react-query": "^5.90.2",
-    "axios": "^1.7.9",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^7.9.4",
+    "react-hot-toast": "^2.4.1"
   },
   "devDependencies": {
     "@types/react": "^19.1.9",

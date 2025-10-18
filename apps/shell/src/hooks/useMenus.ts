@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ApiMenuItem, MenuItem } from '../types';
-import { mapApiMenuToClient } from '../lib/menuItems';
 import { BaseApiClient } from '@workspace/shared/lib/base-api-client';
+import { File } from 'lucide-react';
+import { DynamicIcon, IconName, iconNames } from 'lucide-react/dynamic';
 
 class MenuApiClient extends BaseApiClient {
   async getMenus(role?: string): Promise<ApiMenuItem[]> {
@@ -11,35 +13,46 @@ class MenuApiClient extends BaseApiClient {
 
 const menuApiClient = new MenuApiClient();
 
-export function useMenus(role?: string) {
-  const [data, setData] = useState<MenuItem[] | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+// Dynamic icon component function
+function getIconComponent(iconName?: string) {
+  return function DynamicIconComponent({ className, style }: { className?: string; style?: React.CSSProperties }) {
+    const trimmedIconName = iconName?.trim() as IconName | undefined;
 
-  useEffect(() => {
-    let mounted = true;
-    setLoading(true);
-    setError(null);
-    menuApiClient
-      .getMenus(role)
-      .then((menus) => {
-        if (!mounted) return;
-        setData(menus.map(mapApiMenuToClient));
-      })
-      .catch((e) => {
-        if (!mounted) return;
-        setError(typeof e === 'string' ? e : e.message || 'Failed to load menus');
-      })
-      .finally(() => {
-        if (!mounted) return;
-        setLoading(false);
+    if (trimmedIconName && (iconNames as readonly string[]).includes(trimmedIconName)) {
+      return React.createElement(DynamicIcon, {
+        name: trimmedIconName,
+        className: className,
+        style: style
       });
-    return () => {
-      mounted = false;
-    };
-  }, [role]);
+    }
 
-  return { data, loading, error };
+    // Fallback to File icon if icon name is not found
+    return React.createElement(File, {
+      className: className,
+      style: style
+    });
+  };
 }
 
+// Convert API menu item to client menu item
+function mapApiMenuToClient(apiMenu: ApiMenuItem): MenuItem {
+  return {
+    id: apiMenu.id.toString(),
+    label: apiMenu.label,
+    icon: getIconComponent(apiMenu.icon),
+    path: apiMenu.path || '#',
+    iconColor: apiMenu.iconColor,
+    children: apiMenu.children?.map(mapApiMenuToClient),
+  };
+}
 
+export function useMenus(role?: string) {
+  return useQuery({
+    queryKey: menuApiClient.getQueryKey('/menus', role ? { role } : undefined),
+    queryFn: () => menuApiClient.getMenus(role),
+    select: (data: ApiMenuItem[]) => data.map(mapApiMenuToClient),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}

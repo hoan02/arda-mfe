@@ -1,14 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster as HotToaster } from "react-hot-toast";
 import { QueryProvider } from "@workspace/shared/providers";
-import { RouterAdapter } from "./providers/RouterAdapter";
-import { AdminDashboard } from "./features/dashboard/AdminDashboard";
-import { UsersManagement } from "./features/users/UsersManagement";
-import { Settings } from "./features/settings/Settings";
-import MenuPage from "./features/menu/MenuPage";
-import "./index.css";
-import { UsersTableExample } from "./components/examples";
-import { NuqsAdapter } from "nuqs/adapters/react-router/v6";
+import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
+import { RouterAdapter } from "./common/layouts/RouterAdapter";
+import { allRoutes } from "./routes";
+import "./styles/globals.css";
 
 function App() {
   return (
@@ -19,14 +15,13 @@ function App() {
             <div className="h-full bg-gray-50 flex flex-col">
               <main className="flex-1 overflow-auto p-2">
                 <Routes>
-                  <Route path="/" element={<AdminDashboard />} />
-                  <Route path="/users" element={<UsersManagement />} />
-                  <Route path="/menus" element={<MenuPage />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route
-                    path="/examples/users-table"
-                    element={<UsersTableExample />}
-                  />
+                  {allRoutes.map((route: any, index: number) => (
+                    <Route
+                      key={index}
+                      path={route.path}
+                      element={route.element}
+                    />
+                  ))}
                 </Routes>
               </main>
               <HotToaster position="top-right" />

@@ -17,12 +17,11 @@
     "@tanstack/react-table": "^8.21.3",
     "@workspace/ui": "workspace:*",
     "@workspace/shared": "workspace:*",
-    "axios": "^1.12.2",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.475.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^6.28.0",
+    "react-router-dom": "^7.9.4",
     "react-hot-toast": "^2.4.1",
     "nuqs": "^2.3.0",
     "react-hook-form": "^7.53.0"

@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import TreeView, { TreeViewItem } from "@workspace/ui/components/tree-view";
 import { useQuery } from "@tanstack/react-query";
-import { menuApiClient } from "../utils/menu-api";
+import { menuApiClient } from "../services/menu-api";
 import { useMemo, useState } from "react";
 import { DynamicIcon, IconName, iconNames } from "lucide-react/dynamic";
 import {
@@ -52,8 +52,10 @@ function mapMenusToTreeViewItems(items: any[] | undefined): TreeViewItem[] {
       type: (m.type || (children.length ? "folder" : "file"))
         .toString()
         .toLowerCase(),
-      children,
+      // Only set children property if there are actual children
+      ...(children.length > 0 && { children }),
       icon: m.icon, // extra field used by getIcon
+      iconColor: m.iconColor, // extra field used by getIcon for color
     };
     return node as TreeViewItem;
   };
@@ -179,10 +181,18 @@ export function MenuTreeManager() {
   };
 
   const getIcon = (item: TreeViewItem) => {
-    const anyItem = item as unknown as { icon?: string; type?: string };
+    const anyItem = item as unknown as {
+      icon?: string;
+      iconColor?: string;
+      type?: string;
+    };
     const iconName = anyItem.icon?.trim() as IconName | undefined;
     if (iconName && (iconNames as readonly string[]).includes(iconName)) {
-      return <DynamicIcon name={iconName} className="h-4 w-4" />;
+      // Use iconColor from backend data if available, otherwise use default styling
+      const colorStyle = anyItem.iconColor ? { color: anyItem.iconColor } : {};
+      return (
+        <DynamicIcon name={iconName} className="h-4 w-4" style={colorStyle} />
+      );
     }
     return customIconMap[anyItem.type || "item"] || customIconMap.item;
   };

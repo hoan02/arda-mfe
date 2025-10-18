@@ -15,7 +15,7 @@ import {
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { menuApiClient } from "../utils/menu-api";
+import { menuApiClient } from "../services/menu-api";
 
 export type MenuDetailsProps = {
   menu: any | null;
