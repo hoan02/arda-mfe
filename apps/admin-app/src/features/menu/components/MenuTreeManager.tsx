@@ -20,6 +20,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog";
 import { Button } from "@workspace/ui/components/button";
 import {
   Table,
@@ -125,11 +135,27 @@ export function MenuTreeManager() {
     onError: (e: any) => toast.error(e?.message || "Cập nhật thứ tự thất bại"),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (menuId: number) => {
+      await menuApiClient.deleteMenu(menuId);
+    },
+    onSuccess: () => {
+      toast.success("Đã xoá menu");
+      queryClient.invalidateQueries({ queryKey: ["menus-tree"] });
+      setDeleteDialogOpen(false);
+      setMenuToDelete(null);
+    },
+    onError: (e: any) => toast.error(e?.message || "Xoá thất bại"),
+  });
+
   const [reorderOpen, setReorderOpen] = useState(false);
   const [reorderParentId, setReorderParentId] = useState<number | null>(null);
   const [reorderItems, setReorderItems] = useState<
     Array<{ id: string; label: string; path?: string }>
   >([]);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [menuToDelete, setMenuToDelete] = useState<any>(null);
 
   const handleViewMenu = (menu: any) => {
     setDialogMenu(menu);
@@ -144,10 +170,8 @@ export function MenuTreeManager() {
   };
 
   const handleDeleteMenu = (menu: any) => {
-    if (confirm(`Xóa menu "${menu.label}"?`)) {
-      // TODO: Implement delete API
-      console.log("Delete menu:", menu);
-    }
+    setMenuToDelete(menu);
+    setDeleteDialogOpen(true);
   };
 
   const handleAddRootMenu = () => {
@@ -383,6 +407,31 @@ export function MenuTreeManager() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa menu</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa menu "{menuToDelete?.label}"? Hành động
+              này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (menuToDelete?.id) {
+                  deleteMutation.mutate(menuToDelete.id);
+                }
+              }}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Đang xóa..." : "Xóa"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
