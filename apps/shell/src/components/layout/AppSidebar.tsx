@@ -25,11 +25,13 @@ import {
 } from "lucide-react";
 import { useNavigation } from "../../hooks/useNavigation";
 import { useMenus } from "../../hooks/useMenus";
+import { useMenuRestoring } from "../../hooks/use-menu-persistence";
 import { Button } from "@workspace/ui/components/button";
 
 export function AppSidebar() {
   const location = useLocation();
   const { expandedItems, toggleExpanded } = useNavigation();
+  const isRestoring = useMenuRestoring();
   const {
     data: dynamicMenus,
     isLoading,
@@ -59,11 +61,13 @@ export function AppSidebar() {
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {isLoading ? (
+              {isLoading || isRestoring ? (
                 <SidebarMenuItem>
                   <SidebarMenuButton disabled className="w-full">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Loading menus...</span>
+                    <span>
+                      {isRestoring ? "Restoring menus..." : "Loading menus..."}
+                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ) : error ? (

@@ -2,8 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ApiMenuItem, MenuItem } from '../types';
 import { BaseApiClient } from '@workspace/shared/lib/base-api-client';
-import { File } from 'lucide-react';
-import { DynamicIcon, IconName, iconNames } from 'lucide-react/dynamic';
+import { getIconComponent } from '@workspace/ui/lib/utils';
 
 class MenuApiClient extends BaseApiClient {
   async getMenus(role?: string): Promise<ApiMenuItem[]> {
@@ -13,33 +12,17 @@ class MenuApiClient extends BaseApiClient {
 
 const menuApiClient = new MenuApiClient();
 
-// Dynamic icon component function
-function getIconComponent(iconName?: string) {
-  return function DynamicIconComponent({ className, style }: { className?: string; style?: React.CSSProperties }) {
-    const trimmedIconName = iconName?.trim() as IconName | undefined;
-
-    if (trimmedIconName && (iconNames as readonly string[]).includes(trimmedIconName)) {
-      return React.createElement(DynamicIcon, {
-        name: trimmedIconName,
-        className: className,
-        style: style
-      });
-    }
-
-    // Fallback to File icon if icon name is not found
-    return React.createElement(File, {
-      className: className,
-      style: style
-    });
-  };
-}
 
 // Convert API menu item to client menu item
 function mapApiMenuToClient(apiMenu: ApiMenuItem): MenuItem {
   return {
     id: apiMenu.id.toString(),
     label: apiMenu.label,
-    icon: getIconComponent(apiMenu.icon),
+    icon: getIconComponent({
+      iconName: apiMenu.icon,
+      iconColor: apiMenu.iconColor,
+      defaultClassName: "h-4 w-4"
+    }),
     path: apiMenu.path || '#',
     iconColor: apiMenu.iconColor,
     children: apiMenu.children?.map(mapApiMenuToClient),
@@ -48,11 +31,16 @@ function mapApiMenuToClient(apiMenu: ApiMenuItem): MenuItem {
 
 export function useMenus(role?: string) {
   return useQuery({
-    queryKey: menuApiClient.getQueryKey('/menus', role ? { role } : undefined),
+    queryKey: ['menus', role],
     queryFn: () => menuApiClient.getMenus(role),
     select: (data: ApiMenuItem[]) => data.map(mapApiMenuToClient),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 1000 * 60 * 60 * 24, // 24 hours - same as persistence maxAge
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    // Enable persistence for menu data
+    meta: {
+      persist: true,
+    },
   });
 }

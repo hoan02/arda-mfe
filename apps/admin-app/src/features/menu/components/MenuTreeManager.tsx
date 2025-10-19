@@ -13,7 +13,7 @@ import TreeView, { TreeViewItem } from "@workspace/ui/components/tree-view";
 import { useQuery } from "@tanstack/react-query";
 import { menuApiClient } from "../services/menu-api";
 import { useMemo, useState } from "react";
-import { DynamicIcon, IconName, iconNames } from "lucide-react/dynamic";
+import { getIconComponent } from "@workspace/ui/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -225,14 +225,17 @@ export function MenuTreeManager() {
       iconColor?: string;
       type?: string;
     };
-    const iconName = anyItem.icon?.trim() as IconName | undefined;
-    if (iconName && (iconNames as readonly string[]).includes(iconName)) {
-      // Use iconColor from backend data if available, otherwise use default styling
-      const colorStyle = anyItem.iconColor ? { color: anyItem.iconColor } : {};
-      return (
-        <DynamicIcon name={iconName} className="h-4 w-4" style={colorStyle} />
-      );
+
+    // Use the enhanced getIconComponent utility
+    if (anyItem.icon) {
+      const IconComponent = getIconComponent({
+        iconName: anyItem.icon,
+        iconColor: anyItem.iconColor,
+        defaultClassName: "h-4 w-4",
+      });
+      return <IconComponent />;
     }
+
     return customIconMap[anyItem.type || "item"] || customIconMap.item;
   };
 

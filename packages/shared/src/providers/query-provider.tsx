@@ -1,21 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import {
+  createMenuPersister,
+  createPersistentQueryClient,
+  menuPersistenceConfig,
+} from "../lib/query-persistence";
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: 3,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    },
-    mutations: {
-      retry: 1,
-    },
-  },
-});
+// Create a persistent client for menu caching
+const queryClient = createPersistentQueryClient();
+const menuPersister = createMenuPersister();
 
 interface QueryProviderProps {
   children: React.ReactNode;
@@ -23,9 +18,20 @@ interface QueryProviderProps {
 
 export function QueryProvider({ children }: QueryProviderProps) {
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: menuPersister,
+        maxAge: menuPersistenceConfig.maxAge,
+        buster: menuPersistenceConfig.buster,
+      }}
+      onSuccess={() => {
+        // Optional: Resume any paused mutations after restore
+        queryClient.resumePausedMutations();
+      }}
+    >
       {children}
       {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }
