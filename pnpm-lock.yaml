@@ -7,16 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@tanstack/query-async-storage-persister':
-        specifier: ^5.90.7
-        version: 5.90.7
-      '@tanstack/query-sync-storage-persister':
-        specifier: ^5.90.7
-        version: 5.90.7
-      '@tanstack/react-query-persist-client':
-        specifier: ^5.90.7
-        version: 5.90.7(@tanstack/react-query@5.90.2(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@workspace/eslint-config':
         specifier: workspace:*
@@ -261,9 +251,15 @@ importers:
       '@module-federation/bridge-react':
         specifier: ^0.20.0
         version: 0.20.0(react-dom@19.2.0(react@19.2.0))(react-router-dom@7.9.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+      '@tanstack/query-async-storage-persister':
+        specifier: ^5.90.7
+        version: 5.90.7
       '@tanstack/react-query':
         specifier: ^5.90.2
         version: 5.90.2(react@19.2.0)
+      '@tanstack/react-query-persist-client':
+        specifier: ^5.90.7
+        version: 5.90.7(@tanstack/react-query@5.90.2(react@19.2.0))(react@19.2.0)
       react:
         specifier: ^19.1.1
         version: 19.2.0
@@ -1747,9 +1743,6 @@ packages:
 
   '@tanstack/query-persist-client-core@5.91.4':
     resolution: {integrity: sha512-HZ8kvAbhttLZKUO4ASHl49u7dQXzRVEogi7/6CCZ5BBItWh2hoEUqy9QHUS4ji7iZiuXe4jwTJNzq2VIuxlnsQ==}
-
-  '@tanstack/query-sync-storage-persister@5.90.7':
-    resolution: {integrity: sha512-Go4QSOv0wz5RNaJR54wvCp5D+mVUBYidKTYj4zvUU8GGkLxL1E+yx0lBkGNvfRmFRjdgWrJb5XS+0Clc5tKzpQ==}
 
   '@tanstack/react-query-devtools@5.90.2':
     resolution: {integrity: sha512-vAXJzZuBXtCQtrY3F/yUNJCV4obT/A/n81kb3+YqLbro5Z2+phdAbceO+deU3ywPw8B42oyJlp4FhO0SoivDFQ==}
@@ -5757,11 +5750,6 @@ snapshots:
   '@tanstack/query-persist-client-core@5.91.4':
     dependencies:
       '@tanstack/query-core': 5.90.5
-
-  '@tanstack/query-sync-storage-persister@5.90.7':
-    dependencies:
-      '@tanstack/query-core': 5.90.5
-      '@tanstack/query-persist-client-core': 5.91.4
 
   '@tanstack/react-query-devtools@5.90.2(@tanstack/react-query@5.90.2(react@19.2.0))(react@19.2.0)':
     dependencies:
