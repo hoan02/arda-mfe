@@ -9,6 +9,7 @@ import { RouterAdapter } from "./providers/RouterAdapter";
 import { AppSidebar } from "./components/layout/AppSidebar";
 import { AppHeader } from "./components/layout/AppHeader";
 import { ShellDashboard } from "./features/dashboard/ShellDashboard";
+import { NotFoundPage } from "./features/404/NotFoundPage";
 import {
   AdminAppWrapper,
   DataGovernanceAppWrapper,
@@ -34,6 +35,7 @@ function App() {
                         path="/data-governance/*"
                         element={<DataGovernanceAppWrapper />}
                       />
+                      <Route path="*" Component={NotFoundPage} />
                     </Routes>
                   </div>
                 </div>
