@@ -150,6 +150,21 @@ export function MenuTreeManager() {
     }
   };
 
+  const handleAddRootMenu = () => {
+    // Open details dialog for creating a root menu
+    setDialogParentMenu(null);
+    setDialogMenu({
+      label: "",
+      path: "",
+      icon: undefined,
+      iconColor: undefined,
+      orderIndex: 0,
+      type: "",
+    });
+    setDialogMode("edit");
+    setDialogOpen(true);
+  };
+
   const handleAddSubMenu = (menu: any) => {
     // Open details dialog for creating a submenu, pre-filling parent info
     setDialogParentMenu(menu);
@@ -270,6 +285,7 @@ export function MenuTreeManager() {
         getIcon={getIcon}
         disableClickAwayClear
         menuItems={menuItems}
+        onAddRootMenu={handleAddRootMenu}
       />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

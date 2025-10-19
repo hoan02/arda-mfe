@@ -11,6 +11,7 @@ import {
   Info,
   X,
   MoreHorizontal,
+  Plus,
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -37,6 +38,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@workspace/ui/components/tooltip";
 import { cn } from "@workspace/ui/lib/utils";
 
 export interface TreeViewItem {
@@ -78,6 +85,7 @@ export interface TreeViewProps {
   iconMap?: TreeViewIconMap;
   disableClickAwayClear?: boolean;
   menuItems?: TreeViewMenuItem[];
+  onAddRootMenu?: () => void;
 }
 
 interface TreeItemProps {
@@ -668,6 +676,7 @@ export default function TreeView({
   onCheckChange,
   disableClickAwayClear = false,
   menuItems,
+  onAddRootMenu,
 }: TreeViewProps) {
   const [currentMousePos, setCurrentMousePos] = useState<number>(0);
   const [dragStart, setDragStart] = useState<number | null>(null);
@@ -943,7 +952,27 @@ export default function TreeView({
 
   return (
     <Card className="flex gap-4">
-      <CardHeader>{title && <CardTitle>{title}</CardTitle>}</CardHeader>
+      <CardHeader>
+        <CardTitle className="justify-between">
+          {title}
+
+          {onAddRootMenu && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={onAddRootMenu} size="md">
+                    <Plus className="h-4 w-4" />
+                    <span>Thêm</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Thêm menu root</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </CardTitle>
+      </CardHeader>
       <CardContent ref={treeRef}>
         <AnimatePresence mode="wait">
           {selectedIds.size > 0 ? (
