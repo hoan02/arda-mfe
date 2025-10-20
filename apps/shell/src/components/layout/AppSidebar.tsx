@@ -26,7 +26,133 @@ import {
 import { useNavigation } from "../../hooks/useNavigation";
 import { useMenus } from "../../hooks/useMenus";
 import { useMenuRestoring } from "../../hooks/use-menu-persistence";
+import { MenuItem } from "../../types";
 import { Button } from "@workspace/ui/components/button";
+
+// Recursive menu item component to handle unlimited nesting levels
+interface MenuItemComponentProps {
+  item: MenuItem;
+  location: ReturnType<typeof useLocation>;
+  expandedItems: string[];
+  toggleExpanded: (itemId: string) => void;
+  isSubMenu?: boolean;
+}
+
+function MenuItemComponent({
+  item,
+  location,
+  expandedItems,
+  toggleExpanded,
+  isSubMenu = false,
+}: MenuItemComponentProps) {
+  const hasChildren = item.children && item.children.length > 0;
+  const isExpanded = expandedItems.includes(item.id);
+
+  if (hasChildren) {
+    if (isSubMenu) {
+      // For sub-menu items that have children, use SidebarMenuSub for proper nesting
+      return (
+        <>
+          <SidebarMenuSubButton
+            onClick={() => toggleExpanded(item.id)}
+            className="w-full"
+            style={{ marginRight: 0, width: "100%" }}
+          >
+            <item.icon className="h-4 w-4" style={{ color: item.iconColor }} />
+            <span>{item.label}</span>
+            <ChevronRight
+              className={`ml-auto h-4 w-4 transition-transform ${
+                isExpanded ? "rotate-90" : ""
+              }`}
+            />
+          </SidebarMenuSubButton>
+          {isExpanded && (
+            <SidebarMenuSub>
+              {item.children!.map((child) => (
+                <SidebarMenuSubItem
+                  key={child.id}
+                  className="mr-0"
+                  style={{ marginRight: 0, width: "100%" }}
+                >
+                  <MenuItemComponent
+                    item={child}
+                    location={location}
+                    expandedItems={expandedItems}
+                    toggleExpanded={toggleExpanded}
+                    isSubMenu={true}
+                  />
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+          )}
+        </>
+      );
+    } else {
+      // For top-level menu items with children
+      return (
+        <>
+          <SidebarMenuButton
+            onClick={() => toggleExpanded(item.id)}
+            className="w-full"
+          >
+            <item.icon className="h-4 w-4" style={{ color: item.iconColor }} />
+            <span>{item.label}</span>
+            <ChevronRight
+              className={`ml-auto h-4 w-4 transition-transform ${
+                isExpanded ? "rotate-90" : ""
+              }`}
+            />
+          </SidebarMenuButton>
+          {isExpanded && (
+            <SidebarMenuSub>
+              {item.children!.map((child) => (
+                <SidebarMenuSubItem
+                  key={child.id}
+                  className="mr-0"
+                  style={{ marginRight: 0, width: "100%" }}
+                >
+                  <MenuItemComponent
+                    item={child}
+                    location={location}
+                    expandedItems={expandedItems}
+                    toggleExpanded={toggleExpanded}
+                    isSubMenu={true}
+                  />
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+          )}
+        </>
+      );
+    }
+  }
+
+  // Leaf node - no children
+  if (isSubMenu) {
+    return (
+      <SidebarMenuSubButton
+        asChild
+        isActive={location.pathname === item.path}
+        className="w-full"
+        style={{ marginRight: 0, width: "100%" }}
+      >
+        <Link to={item.path}>
+          <item.icon className="h-4 w-4" style={{ color: item.iconColor }} />
+          <span>{item.label}</span>
+        </Link>
+      </SidebarMenuSubButton>
+    );
+  } else {
+    return (
+      <SidebarMenuButton asChild isActive={location.pathname === item.path}>
+        <Link to={item.path}>
+          <item.icon className="h-4 w-4" style={{ color: item.iconColor }} />
+          <span>{item.label}</span>
+        </Link>
+      </SidebarMenuButton>
+    );
+  }
+}
 
 export function AppSidebar() {
   const location = useLocation();
@@ -95,58 +221,12 @@ export function AppSidebar() {
               ) : (
                 (dynamicMenus || []).map((item) => (
                   <SidebarMenuItem key={item.id}>
-                    {item.children && item.children.length > 0 ? (
-                      <>
-                        <SidebarMenuButton
-                          onClick={() => toggleExpanded(item.id)}
-                          className="w-full"
-                        >
-                          <item.icon
-                            className="h-4 w-4"
-                            style={{ color: item.iconColor }}
-                          />
-                          <span>{item.label}</span>
-                          <ChevronRight
-                            className={`ml-auto h-4 w-4 transition-transform ${
-                              expandedItems.includes(item.id) ? "rotate-90" : ""
-                            }`}
-                          />
-                        </SidebarMenuButton>
-                        {expandedItems.includes(item.id) && (
-                          <SidebarMenuSub>
-                            {item.children.map((child) => (
-                              <SidebarMenuSubItem key={child.id}>
-                                <SidebarMenuSubButton
-                                  asChild
-                                  isActive={location.pathname === child.path}
-                                >
-                                  <Link to={child.path}>
-                                    <child.icon
-                                      className="h-4 w-4"
-                                      style={{ color: child.iconColor }}
-                                    />
-                                    <span>{child.label}</span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        )}
-                      </>
-                    ) : (
-                      <SidebarMenuButton
-                        asChild
-                        isActive={location.pathname === item.path}
-                      >
-                        <Link to={item.path}>
-                          <item.icon
-                            className="h-4 w-4"
-                            style={{ color: item.iconColor }}
-                          />
-                          <span>{item.label}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    )}
+                    <MenuItemComponent
+                      item={item}
+                      location={location}
+                      expandedItems={expandedItems}
+                      toggleExpanded={toggleExpanded}
+                    />
                   </SidebarMenuItem>
                 ))
               )}

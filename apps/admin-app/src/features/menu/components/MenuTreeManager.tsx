@@ -12,8 +12,9 @@ import {
 import TreeView, { TreeViewItem } from "@workspace/ui/components/tree-view";
 import { useQuery } from "@tanstack/react-query";
 import { menuApiClient } from "../services/menu-api";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { getIconComponent } from "@workspace/ui/lib/utils";
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -50,6 +51,12 @@ import { GripVertical } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { MenuDetails } from "./MenuDetails";
+
+// Cache for icon components to prevent re-creation on every render
+const iconCache = new Map<
+  string,
+  React.ComponentType<{ className?: string; style?: React.CSSProperties }>
+>();
 
 // Map backend menu tree (id, label, icon, type, children) to TreeViewItem[]
 function mapMenusToTreeViewItems(items: any[] | undefined): TreeViewItem[] {
@@ -88,10 +95,8 @@ export function MenuTreeManager() {
     queryFn: () => menuApiClient.getMenusTree(),
   });
 
-  const treeData = useMemo(
-    () => mapMenusToTreeViewItems(data as any[]),
-    [data]
-  );
+  // React 19 can handle simple mapping automatically
+  const treeData = mapMenusToTreeViewItems(data as any[]);
 
   const idToMenu = useMemo(() => {
     const map = new Map<string, any>();
@@ -157,6 +162,7 @@ export function MenuTreeManager() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [menuToDelete, setMenuToDelete] = useState<any>(null);
 
+  // React 19 handles these automatically, no need for useCallback
   const handleViewMenu = (menu: any) => {
     setDialogMenu(menu);
     setDialogMode("view");
@@ -204,41 +210,56 @@ export function MenuTreeManager() {
     setDialogOpen(true);
   };
 
-  const handleReorder = (menu: any) => {
-    const parent = parentMap.get(String(menu.id));
-    const siblings: any[] = parent
-      ? parent.children || []
-      : (data as any[]) || [];
-    const prepared = siblings.map((m) => ({
-      id: String(m.id),
-      label: m.label,
-      path: m.path,
-    }));
-    setReorderParentId(parent ? Number(parent.id) : null);
-    setReorderItems(prepared);
-    setReorderOpen(true);
-  };
+  const handleReorder = useCallback(
+    (menu: any) => {
+      const parent = parentMap.get(String(menu.id));
+      const siblings: any[] = parent
+        ? parent.children || []
+        : (data as any[]) || [];
+      const prepared = siblings.map((m) => ({
+        id: String(m.id),
+        label: m.label,
+        path: m.path,
+      }));
+      setReorderParentId(parent ? Number(parent.id) : null);
+      setReorderItems(prepared);
+      setReorderOpen(true);
+    },
+    [parentMap, data]
+  );
 
-  const getIcon = (item: TreeViewItem) => {
-    const anyItem = item as unknown as {
-      icon?: string;
-      iconColor?: string;
-      type?: string;
-    };
+  const getIcon = useMemo(
+    () => (item: TreeViewItem) => {
+      const anyItem = item as unknown as {
+        icon?: string;
+        iconColor?: string;
+        type?: string;
+      };
 
-    // Use the enhanced getIconComponent utility
-    if (anyItem.icon) {
-      const IconComponent = getIconComponent({
-        iconName: anyItem.icon,
-        iconColor: anyItem.iconColor,
-        defaultClassName: "h-4 w-4",
-      });
-      return <IconComponent />;
-    }
+      // Use the enhanced getIconComponent utility with caching
+      if (anyItem.icon) {
+        // Create a cache key for the icon
+        const iconKey = `${anyItem.icon || "default"}-${anyItem.iconColor || "default"}`;
 
-    return customIconMap[anyItem.type || "item"] || customIconMap.item;
-  };
+        // Get or create the icon component
+        let IconComponent = iconCache.get(iconKey);
+        if (!IconComponent) {
+          IconComponent = getIconComponent({
+            iconName: anyItem.icon,
+            iconColor: anyItem.iconColor,
+            defaultClassName: "h-4 w-4",
+          });
+          iconCache.set(iconKey, IconComponent);
+        }
+        return <IconComponent />;
+      }
 
+      return customIconMap[anyItem.type || "item"] || customIconMap.item;
+    },
+    []
+  );
+
+  // React 19 can handle this automatically, but keeping useMemo for complex object creation
   const menuItems = useMemo(() => {
     const items = [] as any[];
 
@@ -293,7 +314,7 @@ export function MenuTreeManager() {
     });
 
     return items;
-  }, [idToMenu]);
+  }, [idToMenu, handleReorder]); // Keep dependencies for handleReorder (has useCallback) and idToMenu
 
   if (isLoading)
     return (
