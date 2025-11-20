@@ -1,5 +1,3 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-
 // Generic API Error interface
 export interface ApiError {
   error: string;
@@ -8,58 +6,87 @@ export interface ApiError {
   status: number;
 }
 
+// Request configuration interface
+export interface RequestConfig {
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  headers?: Record<string, string>;
+  body?: any;
+  timeout?: number;
+}
+
 export abstract class BaseApiClient {
-  protected client: AxiosInstance;
   protected baseUrl: string;
+  protected defaultTimeout: number = 10000;
 
   constructor(baseUrl: string = 'http://localhost:8000/api/v1') {
     this.baseUrl = baseUrl;
-    this.client = axios.create({
-      baseURL: baseUrl,
-      timeout: 10000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    this.setupInterceptors();
   }
 
-  private setupInterceptors(): void {
-    // Request interceptor
-    this.client.interceptors.request.use(
-      (config) => {
-        console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
-        return config;
-      },
-      (error) => {
-        console.error('❌ Request Error:', error);
-        return Promise.reject(error);
-      }
-    );
+  // Core fetch method with timeout and error handling
+  protected async fetchWithTimeout(
+    endpoint: string,
+    config: RequestConfig = { method: 'GET' }
+  ): Promise<Response> {
+    const url = `${this.baseUrl}${endpoint}`;
+    const timeout = config.timeout || this.defaultTimeout;
 
-    // Response interceptor
-    this.client.interceptors.response.use(
-      (response: AxiosResponse) => {
-        console.log(`✅ API Response: ${response.status} ${response.config.url}`);
-        return response;
-      },
-      (error) => {
-        console.error('❌ Response Error:', error.response?.data || error.message);
-        return Promise.reject(this.handleError(error));
+    console.log(`🚀 API Request: ${config.method} ${url}`);
+
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const response = await fetch(url, {
+        method: config.method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...config.headers,
+        },
+        body: config.body ? JSON.stringify(config.body) : undefined,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      console.log(`✅ API Response: ${response.status} ${url}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-    );
+
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
+
+      console.error('❌ Request Error:', error);
+      throw this.handleError(error);
+    }
   }
 
   protected handleError(error: any): ApiError {
-    if (error.response) {
+    if (error.message?.includes('HTTP')) {
+      // Extract status code from error message like "HTTP 404: Not Found"
+      const statusMatch = error.message.match(/HTTP (\d+):/);
+      const status = statusMatch ? parseInt(statusMatch[1]) : 500;
+
       return {
-        error: error.response.data?.error || 'API Error',
-        message: error.response.data?.message || error.message,
-        timestamp: error.response.data?.timestamp || new Date().toISOString(),
-        status: error.response.status,
+        error: 'API Error',
+        message: error.message,
+        timestamp: new Date().toISOString(),
+        status,
       };
-    } else if (error.request) {
+    } else if (error.message === 'Request timeout') {
+      return {
+        error: 'Timeout Error',
+        message: 'Request timed out',
+        timestamp: new Date().toISOString(),
+        status: 408,
+      };
+    } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
       return {
         error: 'Network Error',
         message: 'Unable to connect to server',
@@ -69,7 +96,7 @@ export abstract class BaseApiClient {
     } else {
       return {
         error: 'Request Error',
-        message: error.message,
+        message: error.message || 'Unknown error occurred',
         timestamp: new Date().toISOString(),
         status: 0,
       };
@@ -83,31 +110,75 @@ export abstract class BaseApiClient {
     ).toString() : '';
 
     const url = queryParams ? `${endpoint}?${queryParams}` : endpoint;
-    const response = await this.client.get<T>(url);
-    return response.data;
+    const response = await this.fetchWithTimeout(url, { method: 'GET' });
+    return response.json();
   }
 
   protected async post<T>(endpoint: string, data?: any): Promise<T> {
-    const response = await this.client.post<T>(endpoint, data);
-    return response.data;
+    const response = await this.fetchWithTimeout(endpoint, {
+      method: 'POST',
+      body: data,
+    });
+    return response.json();
   }
 
   protected async put<T>(endpoint: string, data?: any): Promise<T> {
-    const response = await this.client.put<T>(endpoint, data);
-    return response.data;
+    const response = await this.fetchWithTimeout(endpoint, {
+      method: 'PUT',
+      body: data,
+    });
+
+    // Check if response has content before parsing JSON
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const text = await response.text();
+      return text ? JSON.parse(text) : ({} as T);
+    }
+
+    return {} as T;
   }
 
   protected async patch<T>(endpoint: string, data?: any): Promise<T> {
-    const response = await this.client.patch<T>(endpoint, data);
-    return response.data;
+    const response = await this.fetchWithTimeout(endpoint, {
+      method: 'PATCH',
+      body: data,
+    });
+
+    // Check if response has content before parsing JSON
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const text = await response.text();
+      return text ? JSON.parse(text) : ({} as T);
+    }
+
+    return {} as T;
   }
 
   protected async delete(endpoint: string): Promise<void> {
-    await this.client.delete(endpoint);
+    await this.fetchWithTimeout(endpoint, { method: 'DELETE' });
   }
 
   // Health check - common to all APIs
   async getHealthStatus(): Promise<{ status: string; timestamp: string }> {
     return this.get<{ status: string; timestamp: string }>('/health');
+  }
+
+  // TanStack Query integration helpers
+  protected createQueryKey(endpoint: string, params?: Record<string, any>): (string | Record<string, any>)[] {
+    const baseKey: (string | Record<string, any>)[] = [this.baseUrl, endpoint];
+    if (params) {
+      baseKey.push(params);
+    }
+    return baseKey;
+  }
+
+  // Method to get query key for caching
+  getQueryKey(endpoint: string, params?: Record<string, any>): (string | Record<string, any>)[] {
+    return this.createQueryKey(endpoint, params);
+  }
+
+  // Method to invalidate queries (useful for mutations)
+  getQueryKeysForEndpoint(endpoint: string): string[] {
+    return [this.baseUrl, endpoint];
   }
 }

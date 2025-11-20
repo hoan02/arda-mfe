@@ -2,8 +2,9 @@
 export interface MenuItem {
   id: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   path: string;
+  iconColor?: string;
   children?: MenuItem[];
 }
 
@@ -12,6 +13,7 @@ export interface ApiMenuItem {
   id: number;
   label: string;
   icon?: string;
+  iconColor?: string;
   path?: string;
   orderIndex?: number;
   type?: string;

@@ -11,6 +11,7 @@ import {
   Info,
   X,
   MoreHorizontal,
+  Plus,
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -31,6 +32,18 @@ import {
 } from "@workspace/ui/components/dropdown-menu";
 import { Badge } from "@workspace/ui/components/badge";
 import { Input } from "@workspace/ui/components/input";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@workspace/ui/components/tooltip";
 import { cn } from "@workspace/ui/lib/utils";
 
 export interface TreeViewItem {
@@ -72,6 +85,7 @@ export interface TreeViewProps {
   iconMap?: TreeViewIconMap;
   disableClickAwayClear?: boolean;
   menuItems?: TreeViewMenuItem[];
+  onAddRootMenu?: () => void;
 }
 
 interface TreeItemProps {
@@ -630,6 +644,7 @@ function TreeItem({
                       itemMap={itemMap}
                       iconMap={iconMap}
                       getSelectedItems={getSelectedItems}
+                      menuItems={menuItems}
                     />
                   ))}
                 </motion.div>
@@ -649,6 +664,7 @@ export default function TreeView({
     uncheck: "Uncheck",
   },
   data,
+  title,
   iconMap,
   searchPlaceholder = "Search...",
   selectionText = "selected",
@@ -660,6 +676,7 @@ export default function TreeView({
   onCheckChange,
   disableClickAwayClear = false,
   menuItems,
+  onAddRootMenu,
 }: TreeViewProps) {
   const [currentMousePos, setCurrentMousePos] = useState<number>(0);
   const [dragStart, setDragStart] = useState<number | null>(null);
@@ -934,11 +951,29 @@ export default function TreeView({
   }, [selectedIds, onSelectionChange, getSelectedItems]);
 
   return (
-    <div className="flex gap-4">
-      <div
-        ref={treeRef}
-        className="bg-background p-2 rounded-xl border w-full space-y-4 relative shadow-lg"
-      >
+    <Card className="flex gap-4">
+      <CardHeader>
+        <CardTitle className="justify-between">
+          {title}
+
+          {onAddRootMenu && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={onAddRootMenu} size="md">
+                    <Plus className="h-4 w-4" />
+                    <span>Thêm</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Thêm menu root</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent ref={treeRef}>
         <AnimatePresence mode="wait">
           {selectedIds.size > 0 ? (
             <motion.div
@@ -946,7 +981,7 @@ export default function TreeView({
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="h-10 flex items-center justify-between bg-background rounded-lg border px-4"
+              className="h-10 flex items-center justify-between bg-background rounded-lg border px-4 mb-1"
             >
               <div
                 className="font-medium cursor-pointer flex items-center"
@@ -1001,7 +1036,7 @@ export default function TreeView({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="h-10 flex items-center gap-2"
+              className="h-10 flex items-center gap-2 mb-1"
             >
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -1040,7 +1075,10 @@ export default function TreeView({
 
         <div
           ref={dragRef}
-          className={cn("rounded-lg bg-card relative select-none space-y-1", className)}
+          className={cn(
+            "rounded-lg bg-card relative select-none space-y-1",
+            className
+          )}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
         >
@@ -1079,7 +1117,7 @@ export default function TreeView({
             />
           ))}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
