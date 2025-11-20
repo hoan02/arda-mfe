@@ -10,17 +10,17 @@ const mfConfig = createModuleFederationConfig({
   shared: {
     react: {
       singleton: true,
-      requiredVersion: '^19.1.1',
+      requiredVersion: '^19.2.0',
       eager: true,
     },
     'react-dom': {
       singleton: true,
-      requiredVersion: '^19.1.1',
+      requiredVersion: '^19.2.0',
       eager: true,
     },
     'lucide-react': {
       singleton: true,
-      requiredVersion: '^0.475.0',
+      requiredVersion: '^0.554.0',
       eager: true,
     },
   },
