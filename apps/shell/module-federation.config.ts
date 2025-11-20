@@ -1,10 +1,14 @@
 import { createModuleFederationConfig } from '@module-federation/rsbuild-plugin';
 
+// Support environment variables for production URLs
+const ADMIN_APP_URL = process.env.ADMIN_APP_URL || 'http://localhost:3001';
+const DATA_GOVERNANCE_APP_URL = process.env.DATA_GOVERNANCE_APP_URL || 'http://localhost:3002';
+
 const mfConfig = createModuleFederationConfig({
   name: 'shell',
   remotes: {
-    'admin': 'admin@http://localhost:3001/mf-manifest.json',
-    'dataGovernance': 'dataGovernance@http://localhost:3002/mf-manifest.json',
+    'admin': `admin@${ADMIN_APP_URL}/mf-manifest.json`,
+    'dataGovernance': `dataGovernance@${DATA_GOVERNANCE_APP_URL}/mf-manifest.json`,
   },
   dts: false,
   shared: {

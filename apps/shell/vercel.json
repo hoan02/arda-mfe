@@ -1,0 +1,14 @@
+{
+  "buildCommand": "cd ../../ && pnpm install && pnpm --filter @workspace/shell build",
+  "outputDirectory": "dist",
+  "installCommand": "cd ../../ && pnpm install",
+  "framework": null,
+  "devCommand": "pnpm --filter @workspace/shell dev",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+
