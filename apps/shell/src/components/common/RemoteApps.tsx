@@ -6,45 +6,22 @@ import { FallbackError } from "../common/FallbackError";
 import { FallbackLoading } from "../common/FallbackLoading";
 import { RemoteAppProps } from "../../types";
 
-// Admin App Component
-const AdminApp = createRemoteAppComponent({
-  loader: () => loadRemote("admin/export-app"),
+// IAM App Component
+const IamApp = createRemoteAppComponent({
+  loader: () => loadRemote("iam/export-app"),
   fallback: FallbackError,
   loading: <FallbackLoading />,
 });
 
-// Data Governance App Component
-const DataGovernanceApp = createRemoteAppComponent({
-  loader: () => loadRemote("dataGovernance/export-app"),
-  fallback: FallbackError,
-  loading: <FallbackLoading />,
-});
-
-// Admin App Wrapper
-export function AdminAppWrapper() {
+// IAM App Wrapper
+export function IamAppWrapper() {
   const location = useLocation();
 
   return (
     <div>
-      <AdminApp
+      <IamApp
         key={location.pathname}
-        basename="/admin"
-        props1="props_value"
-        props2="another_props_value"
-      />
-    </div>
-  );
-}
-
-// Data Governance App Wrapper
-export function DataGovernanceAppWrapper() {
-  const location = useLocation();
-
-  return (
-    <div>
-      <DataGovernanceApp
-        key={location.pathname}
-        basename="/data-governance"
+        basename="/iam"
         props1="props_value"
         props2="another_props_value"
       />

@@ -1,10 +1,10 @@
 {
-  "name": "@workspace/shell",
+  "name": "@workspace/iam",
   "version": "0.0.0",
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "rsbuild dev --port 3000",
+    "dev": "rsbuild dev --port 3001",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "lint": "eslint . --max-warnings 0"
@@ -13,11 +13,17 @@
     "@module-federation/bridge-react": "^2.0.1",
     "@module-federation/runtime": "^2.0.1",
     "@tanstack/react-query": "^5.90.10",
+    "@tanstack/react-query-devtools": "^5.90.2",
+    "@tanstack/react-table": "^8.21.3",
     "@workspace/shared": "workspace:*",
     "@workspace/ui": "workspace:*",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.554.0",
+    "nuqs": "^2.8.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-hook-form": "^7.66.1",
+    "react-hot-toast": "^2.6.0",
     "react-router": "^7.13.0",
     "react-router-dom": "^7.13.0"
   },
