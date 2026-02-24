@@ -6,6 +6,21 @@ export type { ApiError as BaseApiError } from './base-api-client';
 export { createToastMessages } from './api-utils';
 export type { ApiError as UtilsApiError } from './api-utils';
 
-// Export generic CRUD client
-export { GenericCrudClient, createCrudClient } from './generic-crud-client';
-export type { CrudEndpoints, CrudClientConfig } from './generic-crud-client';
+
+// Auth store
+export {
+  getToken, getRefreshToken, setTokens, clearTokens,
+  getTenantKey, setTenantKey, getTenantInfo, setTenantInfo,
+  clearTenant, clearAll, decodeToken, isAuthenticated,
+} from './auth-store';
+export type { JwtPayload, TenantInfo } from './auth-store';
+
+// Auth API
+export {
+  fetchTenantInfo, loginWithCredentials, refreshAccessToken,
+  redirectToSSO, handleOAuthCallback,
+} from './auth-api';
+
+// i18n
+export { getLanguage, setLanguage, toggleLanguage, t } from './i18n';
+export type { Language } from './i18n';

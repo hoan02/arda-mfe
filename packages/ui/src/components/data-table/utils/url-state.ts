@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "@workspace/shared/hooks/use-router";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useState, useEffect, useRef, useMemo } from "react";
 
 // ** import utils

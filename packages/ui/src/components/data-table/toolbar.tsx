@@ -3,7 +3,7 @@
 import { X } from "lucide-react";
 import type { Table } from "@tanstack/react-table";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useLocation, useNavigate } from "@workspace/shared/hooks/use-router";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Settings,
   Undo2,
@@ -74,7 +74,7 @@ interface DataTableToolbarProps<TData extends ExportableData> {
       | ((prev: { from_date: string; to_date: string }) => {
           from_date: string;
           to_date: string;
-        })
+        }),
   ) => void;
   totalSelectedItems?: number;
   deleteSelection?: () => void;
@@ -130,7 +130,7 @@ export function DataTableToolbar<TData extends ExportableData>({
 
   // Initialize local search state with URL value or table state
   const [localSearch, setLocalSearch] = useState(
-    decodedSearchParam || currentSearchFromTable
+    decodedSearchParam || currentSearchFromTable,
   );
 
   // Track if the search is being updated locally
@@ -221,7 +221,7 @@ export function DataTableToolbar<TData extends ExportableData>({
 
   // Track if user has explicitly changed dates
   const [datesModified, setDatesModified] = useState(
-    !!dates.from || !!dates.to
+    !!dates.from || !!dates.to,
   );
 
   // Load initial date range from URL params only once on component mount

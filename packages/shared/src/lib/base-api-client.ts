@@ -1,3 +1,6 @@
+import { getToken, getTenantKey } from './auth-store';
+import { refreshAccessToken } from './auth-api';
+
 // Generic API Error interface
 export interface ApiError {
   error: string;
@@ -37,12 +40,27 @@ export abstract class BaseApiClient {
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
+      // Build headers with auth injection
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...config.headers,
+      };
+
+      // Auto-inject auth token if available
+      const token = getToken();
+      if (token && !headers['Authorization']) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      // Auto-inject tenant ID if available
+      const tenantKey = getTenantKey();
+      if (tenantKey && !headers['X-Tenant-ID']) {
+        headers['X-Tenant-ID'] = tenantKey;
+      }
+
       const response = await fetch(url, {
         method: config.method,
-        headers: {
-          'Content-Type': 'application/json',
-          ...config.headers,
-        },
+        headers,
         body: config.body ? JSON.stringify(config.body) : undefined,
         signal: controller.signal,
       });
@@ -51,6 +69,15 @@ export abstract class BaseApiClient {
       console.log(`✅ API Response: ${response.status} ${url}`);
 
       if (!response.ok) {
+        // 401 — attempt token refresh and retry once
+        if (response.status === 401) {
+          const refreshed = await refreshAccessToken();
+          if (refreshed) {
+            clearTimeout(timeoutId);
+            // Retry with new token
+            return this.fetchWithTimeout(endpoint, config);
+          }
+        }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 

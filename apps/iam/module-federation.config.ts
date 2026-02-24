@@ -1,13 +1,11 @@
 import { createModuleFederationConfig } from '@module-federation/rsbuild-plugin';
 
-// Support environment variables for production URLs
-const IAM_APP_URL = process.env.IAM_APP_URL || 'http://localhost:3001';
-
 const mfConfig = createModuleFederationConfig({
-  name: 'shell',
-  remotes: {
-    'iam': `iam@${IAM_APP_URL}/mf-manifest.json`,
+  name: 'iam',
+  exposes: {
+    './export-app': './src/export-app.tsx',
   },
+  filename: 'remoteEntry.js',
   dts: false,
   shared: {
     react: {

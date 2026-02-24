@@ -21,8 +21,24 @@ export default defineConfig({
     template: './index.html',
   },
   server: {
-    port: 3000,
-    open: true,
+    port: 3001,
+    open: false,
+  },
+  dev: {
+    lazyCompilation: false,
+    client: {
+      overlay: false,
+    },
+  },
+  builtins: {
+    react: {
+      refresh: true,
+    },
+  },
+  experiments: {
+    rspackFuture: {
+      disableApplyEntryLazily: true,
+    },
   },
   tools: {
     rspack: {
@@ -33,6 +49,18 @@ export default defineConfig({
             __dirname,
             'node_modules/@module-federation/bridge-react/dist/router-v7.es.js',
           ),
+        },
+      },
+      optimization: {
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            lucide: {
+              test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
+              name: 'lucide',
+              chunks: 'all',
+            },
+          },
         },
       },
     },
