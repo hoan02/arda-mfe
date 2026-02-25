@@ -19,6 +19,8 @@ import { NotFoundPage } from "./features/404/NotFoundPage";
 import { LoginPage } from "./features/auth/LoginPage";
 import { AuthCallbackPage } from "./features/auth/AuthCallbackPage";
 import { IamAppWrapper } from "./components/common/RemoteApps";
+import { menuRoutes } from "./features/menu/menu.route";
+import { tenantRoutes } from "./features/tenant-management/tenant.route";
 import "./styles/globals.css";
 
 /**
@@ -48,6 +50,20 @@ function ProtectedLayout() {
   );
 }
 
+// Hàm đệ quy để render các routes từ Config
+function renderRoutes(routes: any[]) {
+  return routes.map((route, index) => {
+    if (route.children) {
+      return (
+        <Route key={index} path={route.path} element={route.element}>
+          {renderRoutes(route.children)}
+        </Route>
+      );
+    }
+    return <Route key={index} path={route.path} element={route.element} />;
+  });
+}
+
 function App() {
   return (
     <QueryProvider>
@@ -61,6 +77,8 @@ function App() {
             {/* Protected routes — with sidebar/header */}
             <Route element={<ProtectedLayout />}>
               <Route path="/" element={<ShellDashboard />} />
+              {renderRoutes(menuRoutes)}
+              {renderRoutes(tenantRoutes)}
               <Route path="/iam/*" element={<IamAppWrapper />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>

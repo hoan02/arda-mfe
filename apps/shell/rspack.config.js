@@ -9,13 +9,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
-    pluginReact(),
+    pluginReact({
+      swcReactOptions: {
+        runtime: 'automatic',
+      },
+    }),
     pluginModuleFederation(mfConfig),
   ],
   source: {
     entry: {
       index: './src/index.tsx',
     },
+    include: [
+      // pnpm symlinks workspace packages into node_modules,
+      // so we must explicitly include them to apply SWC transform (runtime: automatic)
+      /packages[\\/](ui|shared)[\\/]/,
+    ],
   },
   html: {
     template: './index.html',

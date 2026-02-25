@@ -2,11 +2,18 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ApiMenuItem, MenuItem } from '../types';
 import { BaseApiClient } from '@workspace/shared/lib/base-api-client';
+import { getTenantKey } from '@workspace/shared/lib/auth-store';
 import { getIconComponent } from '@workspace/ui/lib/utils';
 
 class MenuApiClient extends BaseApiClient {
-  async getMenus(role?: string): Promise<ApiMenuItem[]> {
-    return this.get<ApiMenuItem[]>('/menus', role ? { role } : undefined);
+  constructor() {
+    super('http://localhost:8000/v1');
+  }
+
+  async getMenus(): Promise<ApiMenuItem[]> {
+    const tenantKey = getTenantKey();
+    if (!tenantKey) return [];
+    return this.get<ApiMenuItem[]>(`/menus/tenant/${tenantKey}`);
   }
 }
 
@@ -62,10 +69,10 @@ const mapApiMenuToClient = (apiMenu: ApiMenuItem): MenuItem => {
   return menuItem;
 };
 
-export function useMenus(role?: string) {
+export function useMenus() {
   return useQuery({
-    queryKey: ['menus', role],
-    queryFn: () => menuApiClient.getMenus(role),
+    queryKey: ['menus', getTenantKey()],
+    queryFn: () => menuApiClient.getMenus(),
     // React 19 can handle this automatically, but the caching is still important
     select: (data: ApiMenuItem[]) => {
       // Cache prevents re-creation of menu objects and icon components
