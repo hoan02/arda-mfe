@@ -1,8 +1,8 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ApiMenuItem, MenuItem } from '../types';
-import { BaseApiClient } from '@workspace/shared/lib/base-api-client';
-import { getTenantKey } from '@workspace/shared/lib/auth-store';
+import { BaseApiClient } from '@workspace/shared/api';
+import { getTenantKey } from '@workspace/shared/auth';
 import { getIconComponent } from '@workspace/ui/lib/utils';
 
 class MenuApiClient extends BaseApiClient {

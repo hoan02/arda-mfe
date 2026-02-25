@@ -10,8 +10,9 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@workspace/ui/components/sidebar";
-import { QueryProvider } from "@workspace/shared/providers";
-import { AuthProvider, useAuth } from "@workspace/shared/contexts";
+import { QueryProvider } from "@workspace/shared/query";
+import { AuthProvider, useAuth } from "@workspace/shared/auth";
+import { I18nextProvider, i18n } from "@workspace/shared/i18n";
 import { AppSidebar } from "./components/layout/AppSidebar";
 import { AppHeader } from "./components/layout/AppHeader";
 import { ShellDashboard } from "./features/dashboard/ShellDashboard";
@@ -66,26 +67,28 @@ function renderRoutes(routes: any[]) {
 
 function App() {
   return (
-    <QueryProvider>
-      <AuthProvider>
-        <BrowserRouter basename="/">
-          <Routes>
-            {/* Public auth routes — no sidebar/header */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/auth/callback" element={<AuthCallbackPage />} />
+    <I18nextProvider i18n={i18n}>
+      <QueryProvider>
+        <AuthProvider>
+          <BrowserRouter basename="/">
+            <Routes>
+              {/* Public auth routes — no sidebar/header */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
-            {/* Protected routes — with sidebar/header */}
-            <Route element={<ProtectedLayout />}>
-              <Route path="/" element={<ShellDashboard />} />
-              {renderRoutes(menuRoutes)}
-              {renderRoutes(tenantRoutes)}
-              <Route path="/iam/*" element={<IamAppWrapper />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryProvider>
+              {/* Protected routes — with sidebar/header */}
+              <Route element={<ProtectedLayout />}>
+                <Route path="/" element={<ShellDashboard />} />
+                {renderRoutes(menuRoutes)}
+                {renderRoutes(tenantRoutes)}
+                <Route path="/iam/*" element={<IamAppWrapper />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </QueryProvider>
+    </I18nextProvider>
   );
 }
 

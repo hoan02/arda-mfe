@@ -1,10 +1,18 @@
 import { RouteObject } from "react-router-dom";
-import { homeRoutes } from "./features/_home/home.route";
-import { userRoutes } from "./features/user-management/user.route";
+import { IamDashboard } from "./features/_home/pages/IamDashboard";
+import { UserListPage } from "./features/user-management/pages/UserListPage";
+import { RoleListPage } from "./features/role-management/pages/RoleListPage";
+import { GroupListPage } from "./features/group-management/pages/GroupListPage";
+import { ClientListPage } from "./features/client-management/pages/ClientListPage";
+import { SessionListPage } from "./features/session-management/pages/SessionListPage";
+import { PermissionListPage } from "./features/permission-management/pages/PermissionListPage";
 
-// Tự động tổng hợp tất cả routes từ các features
 export const allRoutes: RouteObject[] = [
-  ...homeRoutes,
-  ...userRoutes,
-  // Thêm các feature routes khác ở đây khi cần
+  { path: "/", element: <IamDashboard /> },
+  { path: "/users", element: <UserListPage /> },
+  { path: "/roles", element: <RoleListPage /> },
+  { path: "/groups", element: <GroupListPage /> },
+  { path: "/clients", element: <ClientListPage /> },
+  { path: "/sessions", element: <SessionListPage /> },
+  { path: "/permissions", element: <PermissionListPage /> },
 ];

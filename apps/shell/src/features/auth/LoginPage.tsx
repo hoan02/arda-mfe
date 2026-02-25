@@ -6,13 +6,13 @@ import React, {
   useTransition,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@workspace/shared/contexts";
+import { useAuth } from "@workspace/shared/auth";
 import {
   t,
   getLanguage,
   toggleLanguage,
   type Language,
-} from "@workspace/shared/lib";
+} from "@workspace/shared/i18n";
 import {
   Globe,
   Sun,
