@@ -1,4 +1,4 @@
-import { BaseApiClient } from "@workspace/shared/lib/base-api-client";
+import { BaseApiClient } from "@workspace/shared/api";
 
 export interface ApiMenuItem {
   id: string;

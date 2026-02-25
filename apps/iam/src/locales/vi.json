@@ -1,0 +1,16 @@
+{
+  "users": {
+    "title": "Người dùng",
+    "description": "Quản lý danh sách người dùng trong hệ thống",
+    "searchPlaceholder": "Tìm kiếm người dùng...",
+    "add": "Thêm người dùng mới",
+    "table": {
+      "username": "Tên đăng nhập",
+      "email": "Email",
+      "status": "Trạng thái",
+      "active": "Hoạt động",
+      "inactive": "Khóa",
+      "actions": "Thao tác"
+    }
+  }
+}

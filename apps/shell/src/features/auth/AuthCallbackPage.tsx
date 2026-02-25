@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "@workspace/shared/contexts";
-import { t, getLanguage } from "@workspace/shared/lib";
+import { useAuth } from "@workspace/shared/auth";
+import { t, getLanguage } from "@workspace/shared/i18n";
 import { Loader2, AlertCircle } from "lucide-react";
 
 export function AuthCallbackPage() {

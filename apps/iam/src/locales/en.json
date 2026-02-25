@@ -1,0 +1,16 @@
+{
+  "users": {
+    "title": "Users",
+    "description": "Manage user list in the system",
+    "searchPlaceholder": "Search users...",
+    "add": "Add New User",
+    "table": {
+      "username": "Username",
+      "email": "Email",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "actions": "Actions"
+    }
+  }
+}
