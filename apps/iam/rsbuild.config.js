@@ -9,13 +9,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
-    pluginReact(),
+    pluginReact({
+      swcReactOptions: {
+        runtime: 'automatic',
+      },
+    }),
     pluginModuleFederation(mfConfig),
   ],
   source: {
     entry: {
       index: './src/index.tsx',
     },
+    include: [/packages[\/](ui|shared)[\/]/],
   },
   html: {
     template: './index.html',
@@ -28,16 +33,6 @@ export default defineConfig({
     lazyCompilation: false,
     client: {
       overlay: false,
-    },
-  },
-  builtins: {
-    react: {
-      refresh: true,
-    },
-  },
-  experiments: {
-    rspackFuture: {
-      disableApplyEntryLazily: true,
     },
   },
   tools: {

@@ -21,7 +21,7 @@ export abstract class BaseApiClient {
   protected baseUrl: string;
   protected defaultTimeout: number = 10000;
 
-  constructor(baseUrl: string = 'http://localhost:8000/api/v1') {
+  constructor(baseUrl: string = 'http://localhost:9080/api') {
     this.baseUrl = baseUrl;
   }
 

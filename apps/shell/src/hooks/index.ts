@@ -6,4 +6,3 @@ export { useMenus } from './useMenus';
 export type { MenuItem, RemoteAppProps, FallbackErrorProps, NavigationState, NavigationActions } from '../types';
 
 // Lib
-export { menuItems, mapApiMenuToClient, getIconComponent } from '../lib/menuItems';

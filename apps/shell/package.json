@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "rsbuild dev --port 3000",
+    "dev": "cross-env DISABLE_NEW_JSX_TRANSFORM=false rsbuild dev --port 3000",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "lint": "eslint . --max-warnings 0"
@@ -13,11 +13,13 @@
     "@module-federation/bridge-react": "^2.0.1",
     "@module-federation/runtime": "^2.0.1",
     "@tanstack/react-query": "^5.90.10",
+    "@tanstack/react-table": "^8.21.3",
     "@workspace/shared": "workspace:*",
     "@workspace/ui": "workspace:*",
     "lucide-react": "^0.554.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-hot-toast": "^2.6.0",
     "react-router": "^7.13.0",
     "react-router-dom": "^7.13.0"
   },
@@ -29,6 +31,7 @@
     "@types/react-dom": "^19.2.3",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
+    "cross-env": "^10.1.0",
     "typescript": "^5.9.3"
   }
 }

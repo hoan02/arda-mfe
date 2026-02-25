@@ -1,0 +1,10 @@
+﻿src/config/env.ts(2,27): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/config/env.ts(3,28): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/config/env.ts(4,30): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/config/env.ts(5,29): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/features/menu/components/MenuTreeManager.tsx(134,38): error TS2345: Argument of type '{ id: number; parentId: number | null; orderIndex: number; }[]' is not assignable to parameter of type '{ id: string; parentId: string | null; sortOrder: number; }[]'.
+  Property 'sortOrder' is missing in type '{ id: number; parentId: number | null; orderIndex: number; }' but required in type '{ id: string; parentId: string | null; sortOrder: number; }'.
+src/features/menu/components/MenuTreeManager.tsx(145,38): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/features/menu/lib/menu-api-test.ts(19,51): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/features/menu/lib/menu-api-test.ts(59,53): error TS2345: Argument of type '{ id: number; parentId: null; orderIndex: number; }[]' is not assignable to parameter of type '{ id: string; parentId: string | null; sortOrder: number; }[]'.
+  Property 'sortOrder' is missing in type '{ id: number; parentId: null; orderIndex: number; }' but required in type '{ id: string; parentId: string | null; sortOrder: number; }'.
